@@ -1,2 +1,22 @@
+# Agda
 *~
 _build/
+
+# LaTeX
+*.aux
+*.bcf
+*.idx
+*.loa
+*.lof
+*.log
+*.lol
+*.lot
+*.nlo
+*.run.xml
+*.toc
+*.blg
+*.bbl
+*.ilg
+*.nls
+_minted-*
+images/*.pdf

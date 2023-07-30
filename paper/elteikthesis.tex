@@ -1,0 +1,136 @@
+\documentclass[
+	%parspace, % Add vertical space between paragraphs
+	%noindent, % No indentation of first lines in each paragraph
+	%nohyp, % No hyphenation of words
+	%twoside, % Double sided format
+	%draft, % Quicker draft compilation without rendering images
+	%final, % Set final to hide todos
+]{elteikthesis}[2023/04/10]
+
+% The minted package is also supported for source highlighting
+% See elteikthesis_minted.tex for example
+\usepackage[newfloat]{minted}
+
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{unicode-math}
+\usepackage{fontspec}
+
+\setmonofont{XITS}
+[    Extension      = .otf,
+     UprightFont    = *-Regular,
+     BoldFont       = *-Bold,
+     ItalicFont     = *-Italic,
+     BoldItalicFont = *-BoldItalic,
+]
+\setmathfont{XITSMath-Regular}
+[    Extension      = .otf,
+     BoldFont       = XITSMath-Bold,
+]
+
+% Document's metadata
+\title{Agda formalisation of an elaborator for a language based on simply typed lambda calculus} % title
+\date{2024} % year of defense
+
+% Author's metadata
+\author{Zahorán Barnabás}
+\degree{Computer Science MSc}
+
+% Superivsor(s)' metadata
+\supervisor{Kaposi Ambrus} % internal supervisor's name
+\affiliation{Docent} % internal supervisor's affiliation
+%\extsupervisor{Jane Doe} % external supervisor's name
+%\extaffiliation{Senior Developer} % external supervisor's affiliation
+
+% University's metadata
+\university{Eötvös Loránd University} % university's name
+\faculty{Faculty of Informatics} % faculty's name
+\department{Dept. of Programming Languages and Compilers} % department's name
+\city{Budapest} % city
+\logo{elte_cimer_szines} % logo
+
+% Add bibliography file
+\addbibresource{elteikthesis.bib}
+
+% The document
+\begin{document}
+
+% Set document language
+\documentlang{english}
+
+% List of todos (not in the final document)
+%\listoftodos[\todolabel]
+
+% Title page (mandatory)
+\maketitle
+% Topic declaration page (mandatory) - can also be attached instead
+%\includepdf{topicdeclaration.pdf}
+
+% Table of contents (mandatory)
+\tableofcontents
+\cleardoublepage
+
+% Main content
+\input{chapters/intro.tex}
+\cleardoublepage
+
+\input{chapters/relatedwork.tex}
+\cleardoublepage
+
+\input{chapters/outline.tex}
+\cleardoublepage
+
+\input{chapters/implementation.tex}
+\cleardoublepage
+
+\input{chapters/conclusion.tex}
+\cleardoublepage
+
+% Acknowledgements (optional) - in case your thesis received funding or would like to express special thanks to someone
+\chapter*{\acklabel}
+\addcontentsline{toc}{chapter}{\acklabel}
+TODO
+
+% Appendices (optional) - useful for detailed information in long tables, many and/or large figures, etc.
+%\appendix
+%\input{chapters/app.tex}
+%\cleardoublepage
+
+% Bibliography (mandatory)
+\phantomsection
+\addcontentsline{toc}{chapter}{\biblabel}
+\printbibliography[title=\biblabel]
+\cleardoublepage
+
+% List of figures (optional) - useful over 3-5 figures
+\phantomsection
+\addcontentsline{toc}{chapter}{\lstfigurelabel}
+\listoffigures
+\cleardoublepage
+
+% List of tables (optional) - useful over 3-5 tables
+\phantomsection
+\addcontentsline{toc}{chapter}{\lsttablelabel}
+\listoftables
+\cleardoublepage
+
+% List of algorithms (optional) - useful over 3-5 algorithms
+\phantomsection
+\addcontentsline{toc}{chapter}{\lstalgorithmlabel}
+\listofalgorithms
+\cleardoublepage
+
+% List of codes (optional) - useful over 3-5 code samples
+\phantomsection
+\addcontentsline{toc}{chapter}{\lstcodelabel}
+\lstlistoflistings
+\cleardoublepage
+
+% List of symbols (optional)
+% Add notation like this later:
+%\nomenclature{\(Γ\)}{Arbitrary context}
+%\nomenclature{\(◇\)}{Empty context}
+\printnomenclature
+
+\end{document}

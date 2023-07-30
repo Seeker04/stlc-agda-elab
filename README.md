@@ -18,7 +18,7 @@ This project started as an extension to an existing formalisation. The well-type
 
 If you wish to see the commits of the elaborator from before going independent, you can find them [in this fork](https://bitbucket.org/zahoranb/typesystems/commits/).
 
-You can read the paper (my MSc thesis) in [STLC-elaboration-in-Agda.pdf](STLC-elaboration-in-Agda.pdf) and browse the source code in [src](src).
+You can read the paper (my MSc thesis) in [STLC-elaboration-in-Agda.pdf](paper/STLC-elaboration-in-Agda.pdf) and browse the source code in [src](src).
 
 ## Installation
 
