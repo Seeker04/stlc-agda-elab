@@ -306,32 +306,23 @@ infer Γ (u abt-node v) with infer Γ u | infer Γ v
 ... | no ¬e = nothing
 infer Γ (u abt-node v) | _ | _ = nothing
 
-infer Γ (abt-iteℕ t u v) with infer Γ t | infer Γ u | infer Γ v
-... | just (A , t') | just (B ⇒ C , u') | just (Nat , v') with B ≟ A | C ≟ A
-... | yes e₁ | yes e₂ = just (A , iteNat t' (fconv (transp (λ X → Tm Γ (_ ⇒ X)) e₂
-                                                   (transp (λ X → Tm Γ (X ⇒ _)) e₁ u'))) v')
-... | _      | _      = nothing
-infer Γ (abt-iteℕ t u v) | _ | _ | _ = nothing
+infer Γ (abt-iteℕ t u v) with infer Γ t | infer Γ v
+... | just (A , t') | just (Nat , v') with check Γ (A ⇒ A) u
+... | just u' = just (A , iteNat t' (fconv u') v')
+... | nothing = nothing
+infer Γ (abt-iteℕ t u v) | _ | _ = nothing
 
-infer Γ (abt-iteList t u v) with infer Γ t | infer Γ u | infer Γ v
-... | just (B , t') | just (C ⇒ D ⇒ E , u') | just (List A , v') with C ≟ A | D ≟ B | E ≟ B
-... | yes e₁ | yes e₂ | yes e₃ = just (B , I.iteList t' (fconv (fconv
-                                                        (transp (λ X → Tm Γ (_ ⇒ _ ⇒ X)) e₃
-                                                        (transp (λ X → Tm Γ (_ ⇒ X ⇒ _)) e₂
-                                                        (transp (λ X → Tm Γ (X ⇒ _ ⇒ _)) e₁ u'))))) v')
-... | _      | _      | _      = nothing
-infer Γ (abt-iteList t u v) | _ | _ | _ = nothing
+infer Γ (abt-iteList t u v) with infer Γ t | infer Γ v
+... | just (B , t') | just (List A , v') with check Γ (A ⇒ B ⇒ B) u
+... | just u' = just (B , I.iteList t' (fconv (fconv u')) v')
+... | nothing = nothing
+infer Γ (abt-iteList t u v) | _ | _ = nothing
 
-infer Γ (abt-iteTree t u v) with infer Γ t | infer Γ u | infer Γ v
-... | just (A ⇒ B , t') | just (C ⇒ D ⇒ E , u') | just (Tree F , v') with C ≟ B | D ≟ B | E ≟ B | F ≟ A
-... | yes e₁ | yes e₂ | yes e₃ | yes e₄ = just (B , I.iteTree
-                                                      (fconv t')
-                                                      (fconv (fconv (transp (λ X → Tm Γ (_ ⇒ _ ⇒ X)) e₃
-                                                                    (transp (λ X → Tm Γ (_ ⇒ X ⇒ _)) e₂
-                                                                    (transp (λ X → Tm Γ (X ⇒ _ ⇒ _)) e₁ u')))))
-                                                      (transp (λ X → Tm Γ (Ty.Tree X)) e₄ v'))
-... | _      | _      | _      | _      = nothing
-infer Γ (abt-iteTree t u v) | _ | _ | _ = nothing
+infer Γ (abt-iteTree t u v) with infer Γ t | infer Γ v
+... | just (A ⇒ B , t') | just (Tree F , v') with A ≟ F | check Γ (B ⇒ B ⇒ B) u
+... | yes e | just u' = just (B , I.iteTree (fconv (transp (λ X → Tm Γ (X ⇒ _)) e t')) (fconv (fconv u')) v')
+... | _     | _       = nothing
+infer Γ (abt-iteTree t u v) | _ | _ = nothing
 
 infer Γ (abt-head t) with infer Γ t
 ... | just (Stream A , t') = just (A , I.head t')
@@ -341,15 +332,13 @@ infer Γ (abt-tail t) with infer Γ t
 ... | just (Stream A , t') = just (Ty.Stream A , I.tail t')
 ... | _                    = nothing
 
-infer Γ (abt-genStream hd tl seed) with infer Γ hd | infer Γ tl | infer Γ seed
-... | just (B ⇒ A , hd') | just (C ⇒ D , tl') | just (S , seed') with B ≟ S | S ≟ C | D ≟ S
-... | yes e₁ | yes e₂ | yes e₃ = just (Ty.Stream A , I.genStream (fconv (transp (λ X → Tm Γ (X ⇒ _)) e₂
-                                                                        (transp (λ X → Tm Γ (X ⇒ _)) e₁ hd')))
-                                                                 (fconv (transp (λ X → Tm Γ (_ ⇒ X)) e₂
-                                                                        (transp (λ X → Tm Γ (_ ⇒ X)) e₃ tl')))
-                                                                 (transp (λ X → Tm Γ X) e₂ seed'))
-... | _      | _      | _      = nothing
-infer Γ (abt-genStream hd tl seed) | _ | _ | _ = nothing
+infer Γ (abt-genStream hd tl seed) with infer Γ hd | infer Γ seed
+... | just (B ⇒ A , hd') | just (S , seed') with B ≟ S | check Γ (S ⇒ S) tl
+... | yes e | just tl' = just (Ty.Stream A , I.genStream (fconv (transp (λ X → Tm Γ (X ⇒ A)) e hd'))
+                                                         (fconv tl')
+                                                         seed')
+... | _     | _        = nothing
+infer Γ (abt-genStream hd tl seed) | _ | _ = nothing
 
 infer Γ (abt-put u v) with infer Γ u | infer Γ v
 ... | just (Machine , u') | just (Nat , v') = just (Ty.Machine , put u' v')
@@ -363,21 +352,14 @@ infer Γ (abt-get t) with infer Γ t
 ... | just (Machine , t') = just (Nat , get t')
 ... | _                   = nothing
 
-infer Γ (abt-genMachine put set get seed) with infer Γ put | infer Γ set | infer Γ get | infer Γ seed
-... | just (A ⇒ Nat ⇒ B , put') | just (C ⇒ D , set') | just (E ⇒ Nat , get') | just (S , seed') with
-                                                                A ≟ S | B ≟ S | S ≟ C | D ≟ S | E ≟ S
-... | yes e₁ | yes e₂ | yes e₃ | yes e₄ | yes e₅ = just (Ty.Machine , I.genMachine
-  (fconv (fconv (transp (λ X → Tm Γ (_ ⇒ Nat ⇒ X)) e₃
-                (transp (λ X → Tm Γ (_ ⇒ Nat ⇒ X)) e₂
-                (transp (λ X → Tm Γ       (X ⇒ _)) e₃
-                (transp (λ X → Tm Γ       (X ⇒ _)) e₁ put'))))))
-  (fconv (transp (λ X → Tm Γ (_ ⇒ X)) e₃ (transp (λ X → Tm Γ (_ ⇒ X)) e₄ set')))
-  (fconv (transp (λ X → Tm Γ (X ⇒ _)) e₃ (transp (λ X → Tm Γ (X ⇒ _)) e₅ get')))
-  (transp (λ X → Tm Γ X) e₃ seed'))
-... | _      | _      | _      | _      | _      = nothing
-infer Γ (abt-genMachine put set get seed) | _ | _ | _ | _ = nothing
-
--- Note: ^mess like this could be somewhat cleaned up using a transp₂ and a transitivity of transp proof
+infer Γ (abt-genMachine put set get seed) with infer Γ seed
+... | just (S , seed') with check Γ (S ⇒ Nat ⇒ S) put | check Γ (S ⇒ S) set | check Γ (S ⇒ Nat) get
+... | just put' | just set' | just get' = just (Ty.Machine , I.genMachine (fconv (fconv put'))
+                                                                          (fconv set')
+                                                                          (fconv get')
+                                                                          seed')
+... | _         | _         | _         = nothing
+infer Γ (abt-genMachine put set get seed) | _ = nothing
 
 infer Γ (abt-ann t ty) with infer-ty ty
 ... | just A           with check Γ A t
