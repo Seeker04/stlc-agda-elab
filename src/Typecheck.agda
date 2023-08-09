@@ -400,7 +400,7 @@ check Γ A t with infer Γ t
 ... | _     = nothing
 
 --------------------------------------
--- Examples (see: Tests.agda for more)
+-- Examples (see: Tests/ for more)
 
 private
   _ : infer ◇ (abt-num 1 abt-+ abt-true) ≡ nothing

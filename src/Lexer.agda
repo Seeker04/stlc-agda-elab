@@ -190,7 +190,7 @@ default s = case (listch⇒ℕ (toList s)) of λ where
   nothing  → t-var s  -- if not a keyword, check if it's a number, if not it's a var name
 
 --------------------------------------
--- Examples (see: Tests.agda for more)
+-- Examples (see: Tests/ for more)
 
 private
   open import Text.Lexer keywords breaking default using (tokenize)

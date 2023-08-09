@@ -4,7 +4,7 @@ open import Level hiding (suc)
 open import Agda.Builtin.Sigma using (Σ)
 open import Data.Bool renaming (Bool to 𝟚; true to tt; false to ff)
 open import Data.Fin using (Fin; zero; suc)
-open import Data.String using (String)
+open import Data.String using (String; _++_; parens)
 open import Data.Maybe using (Maybe; just; nothing)
 open import Data.List using (List; _∷_; [])
 open import Data.Product using (_×_; _,_)
@@ -14,7 +14,7 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
 open import Lexer
 open import Text.Lexer keywords breaking default
-open import Parser Level.zero hiding (_⇒_; num)
+open import Parser Level.zero hiding (_⇒_; num; parens)
 open import Scopecheck hiding (lookup)
 open import Typecheck
 
@@ -84,8 +84,14 @@ evalM code = case eval code of λ where
   (inj₂ _)    → nothing
   (inj₁ eval) → just eval
 
+-- safe source code concatenation utility with parentheses to preserve bounds of abstractions
+-- (i.e., λ extends as far right as possible)
+infixl 15 _++ₛ_
+_++ₛ_ : String → String → String
+s ++ₛ s' = parens s ++ parens s'
+
 --------------------------------------
--- Examples (see: Tests.agda for more)
+-- Examples (see: Tests/ for more)
 
 private
   _ : elaborate "(λ x. isZero x) : ℕ → 𝕃" ≡ just ((record { line = 0 ; offset =  0 } , t-lpar   ) ∷

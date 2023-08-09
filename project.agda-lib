@@ -1,2 +1,2 @@
-include: src
+include: src src/Tests
 depend: standard-library agdarsec

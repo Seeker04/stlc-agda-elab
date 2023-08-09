@@ -110,7 +110,7 @@ lift-abt m≤n (abt-ann t ty)      = abt-ann (lift-abt m≤n t) ty
 
 -- some helper lemmas
 ≡implies≤ : (n m : ℕ) → n ≡ m → n ≤ m
-≡implies≤ 0 m eq = tt
+≡implies≤ 0 m _ = tt
 ≡implies≤ (suc n) (suc m) eq = ≡implies≤ n m (cong pred eq)
 
 max : ℕ → ℕ → ℕ
@@ -299,7 +299,7 @@ scopecheck ast with scopeinfer ast
 ... | _              = nothing
 
 --------------------------------------
--- Examples (see: Tests.agda for more)
+-- Examples (see: Tests/ for more)
 
 private
   _ : scopecheck (s-var "foo") ≡ nothing

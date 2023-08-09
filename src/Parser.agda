@@ -52,6 +52,7 @@ open import Text.Lexer keywords breaking default hiding (Result) renaming (token
 open Agdarsec′ public
 
 -- TODO: lists if present as sub-expressions always have to be parenthesised, which shouldn't be necessary
+-- TODO: nested lists are parsed incorrectly when using the alternative "[a,b,c]" list syntax
 
 --------------------------------------
 -- Boilerplate
@@ -375,7 +376,7 @@ parse : String → Maybe AST
 parse = parse-exp
 
 --------------------------------------
--- Examples (see: Tests.agda for more)
+-- Examples (see: Tests/ for more)
 
 private
   open import Relation.Binary.PropositionalEquality using (_≡_; refl)
