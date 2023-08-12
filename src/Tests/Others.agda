@@ -1,6 +1,6 @@
 {-# OPTIONS --prop --rewriting --guardedness #-}
 
-module Other where
+module Others where
 
 open import Data.Bool hiding (not) renaming (Bool to 𝟚; true to tt; false to ff)
 open import Data.Nat using (suc)

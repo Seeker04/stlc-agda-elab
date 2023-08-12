@@ -13,4 +13,4 @@ import Lists
 import Trees
 import Streams
 import Machines
-import Other
+import Others
