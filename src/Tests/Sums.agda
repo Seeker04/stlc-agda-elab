@@ -18,7 +18,7 @@ _ : compile-eval "_ : ⊥" ≡ {!!} -- of course, no way to write a term whose t
 _ = refl
 -}
 
--- binary sum (disjunct union) with the inl and inr constructors (left and right injections)
+-- binary sum (disjoint union or Either in Haskell) with the inl and inr constructors (left and right injections)
 -- of course, we need the type annotation for deducing the whole type
 
 _ : compile-eval "(inl trivial) : ⊤ ⊎ ℕ" ≡ inj₁ (Unit +o Nat , inl trivial , λ γ* → inj₁ triv)
