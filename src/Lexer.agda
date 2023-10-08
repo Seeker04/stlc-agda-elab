@@ -180,7 +180,10 @@ listch⇒ℕ [] = nothing
 listch⇒ℕ = step 0 where
   step : ℕ → List Char → Maybe ℕ
   step n [] = just n
-  step n (c ∷ cs) = if isDigit c then step (n + (pow 10 (length cs)) * (toℕ c - 48)) cs else nothing where
+  step n (c ∷ cs) = if isDigit c then
+                      step (n + (pow 10 (length cs)) * (toℕ c - 48)) cs
+                    else
+                      nothing where
     pow : ℕ → ℕ → ℕ
     pow b = λ { 0 → 1 ; (suc e) → b * (pow b e)}
 
