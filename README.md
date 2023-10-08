@@ -6,7 +6,7 @@ Programming languages are the backbone of software development. Defining them wi
 
 This paper aims to walk the reader through each step of such an elaboration. Our method is an extension to an existing formalisation of a simple language. We go from source code by lexical analysis to a list of tokens, then by parsing to an abstract syntax tree, which is followed by scope checking leading to an abstract binding tree. Finally, we present a bidirectional type checking algorithm which turns the binding tree to a well-typed term of our language. We apply a correct by construction approach by 1.) formalising all levels and the algorithms between them in type theory using Agda, 2.) constructing terms with an algebraic description, which cannot be badly typed by definition.
 
-Our language is based on simply typed lambda calculus with the function space having finite types: booleans, nullary and binary products and sums; inductive types: naturals, lists, trees (and their iterators); coinductive types: streams and machines; and a few additional operators.
+Our language is based on simply typed lambda calculus with the function space having finite types: booleans, nullary and binary products and sums; inductive types: naturals, lists, trees (and their iterators); coinductive types: streams and simple state machines; and a few additional operators.
 
 We discuss both the benefits and difficulties of the presented solution and compare it to other approaches. The study is concluded by ideas on how our framework can be extended or improved.
 
