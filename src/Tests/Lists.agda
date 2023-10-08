@@ -105,10 +105,9 @@ _ = refl
 
 length = "(λ xs. iteList 0 (λ _ x. x+1) xs) : [ℕ] → ℕ"
 
-_ : compile-eval length ≡ inj₁ (Ty.List Nat ⇒ Nat
-                             , lam (I.iteList zeroo ((lam (lam (lam (lam (iteNat q (suco q) (q [ p ])))
-                               $ q $ suco zeroo)) [ p ] $ q) [ p ] $ q) q)
-                             , (λ γ* xs → STLC.iteList 0 (λ _ x → iteℕ 1 (λ z → suc z) x) xs))
+_ : compile-eval length ≡ inj₁ (Ty.List Nat ⇒ Nat , lam (I.iteList zeroo ((lam (lam (iteNat (suco zeroo) (suco q) q))
+                                                    [ p ] $ q) [ p ] $ q) q)
+                                                  , λ γ* xs → STLC.iteList 0 (λ x y → iteℕ 1 (λ z → suc z) y) xs)
 _ = refl
 
 _ : eval (length ++ₛ "[]") ≡ inj₁ (Nat , λ γ* → 0)
@@ -120,8 +119,8 @@ _ = refl
 
 sum = "(λ xs. iteList 0 (λ x y. x + y) xs) : [ℕ] → ℕ"
 
-_ : compile-eval sum ≡ inj₁ (Ty.List Nat ⇒ Nat , lam (I.iteList zeroo ((lam (lam (lam (lam (iteNat q (suco q) (q [ p ])))
-                                                 $ q [ p ] $ q)) [ p ] $ q) [ p ] $ q) q)
+_ : compile-eval sum ≡ inj₁ (Ty.List Nat ⇒ Nat , lam (I.iteList zeroo ((lam (lam (iteNat q (suco q) (q [ p ])))
+                                                 [ p ] $ q) [ p ] $ q) q)
                                                , λ γ* xs → STLC.iteList 0 (λ x y → iteℕ y (λ z → suc z) x) xs)
 _ = refl
 

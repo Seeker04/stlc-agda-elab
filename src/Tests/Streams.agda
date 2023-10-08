@@ -24,14 +24,14 @@ evens = "genStream ((λn.n):ℕ→ℕ) (λn.n+2)   0"     -- head op: returns cu
 odds  = "genStream ((λn.n):ℕ→ℕ) (λn.n+2)   1"
 
 _ : compile-eval evens ≡ inj₁ (Ty.Stream Nat
-                            , I.genStream (lam q [ p ] $ q) (lam (lam (lam (iteNat q (suco q) (q [ p ])))
-                              $ q $ suco (suco zeroo)) [ p ] $ q) zeroo
-                            , λ γ* → STLC.genStream (λ n → n) (λ n → iteℕ 2 (λ m → suc m) n) 0)
+                            , I.genStream (lam q [ p ] $ q) (lam (iteNat (suco (suco zeroo))
+                              (suco q) q) [ p ] $ q) zeroo
+                            , λ γ* → STLC.genStream (λ n → n) (λ x → iteℕ 2 (λ y → suc y) x) 0)
 _ = refl
-_ : compile-eval odds  ≡ inj₁ (Ty.Stream Nat
-                            , I.genStream (lam q [ p ] $ q) (lam (lam (lam (iteNat q (suco q) (q [ p ])))
-                              $ q $ suco (suco zeroo)) [ p ] $ q) (suco zeroo)
-                            , λ γ* → STLC.genStream (λ n → n) (λ n → iteℕ 2 (λ m → suc m) n) 1)
+_ : compile-eval odds ≡ inj₁ (Ty.Stream Nat
+                            , I.genStream (lam q [ p ] $ q) (lam (iteNat (suco (suco zeroo))
+                              (suco q) q) [ p ] $ q) (suco zeroo)
+                            , λ γ* → STLC.genStream (λ n → n) (λ x → iteℕ 2 (λ y → suc y) x) 1)
 _ = refl
 
 -- destructors: head (returns result) and tail (advances a stream by constructing a new one from the old state)
@@ -72,12 +72,11 @@ length = "((λ ns. iteList 0 (λ _ n. n+1) ns) : [ℕ] → ℕ)"
 
 first-n = "genStream ((λns.ns):[ℕ]→[ℕ]) (λ ns. (" ++ length ++ " ns) ∷ ns) (nil : [ℕ])"
 
-_ : compile-eval first-n ≡ inj₁ (Ty.Stream (Ty.List Nat)
-                              , I.genStream (lam q [ p ] $ q) (lam (cons (lam (I.iteList zeroo
-                                ((lam (lam (lam (lam (iteNat q (suco q) (q [ p ]))) $ q $ suco zeroo))
-                                [ p ] $ q) [ p ] $ q) q) $ q) q) [ p ] $ q) nil
+_ : compile-eval first-n ≡ inj₁ (Ty.Stream (Ty.List Nat) ,
+                                I.genStream (lam q [ p ] $ q) (lam (cons (lam (I.iteList zeroo
+                                ((lam (lam (iteNat (suco zeroo) (suco q) q)) [ p ] $ q) [ p ] $ q) q) $ q) q) [ p ] $ q) nil
                               , λ γ* → STLC.genStream (λ ns → ns)
-                                                      (λ ns → STLC.iteList 0 (λ _ n → iteℕ 1 (λ m → suc m) n) ns ∷ ns)
+                                                      (λ ns → STLC.iteList 0 (λ x y → iteℕ 1 (λ z → suc z) y) ns ∷ ns)
                                                       [])
 _ = refl
 
@@ -94,10 +93,10 @@ _ = refl
 
 step-n = "(λ start diff. genStream ((λn.n):ℕ→ℕ) (λn. n+diff) start) : ℕ → ℕ → (Stream ℕ)"
 
-_ : compile-eval step-n ≡ inj₁ (Nat ⇒ Nat ⇒ Ty.Stream Nat
-                             , lam (lam (I.genStream (lam q [ p ] $ q) (lam (lam (lam
-                               (iteNat q (suco q) (q [ p ]))) $ q $ q [ p ]) [ p ] $ q) (q [ p ])))
-                             , (λ γ* start diff → STLC.genStream (λ n → n) (λ n → iteℕ diff (λ m → suc m) n) start))
+_ : compile-eval step-n ≡ inj₁ (Nat ⇒ Nat ⇒ Ty.Stream Nat ,
+                               lam (lam (I.genStream (lam q [ p ] $ q)
+                               (lam (iteNat (q [ p ]) (suco q) q) [ p ] $ q) (q [ p ])))
+                             , λ γ* start diff → STLC.genStream (λ n → n) (λ n → iteℕ diff (λ x → suc x) n) start)
 _ = refl
 
 _ : eval ("head           ((" ++ step-n ++ ") 10) 5") ≡ inj₁ (Nat , λ γ* → 10)

@@ -47,8 +47,8 @@ _ = refl
 _ : compile-eval "(case ((λ _ .     0) : ⊤ → ℕ)   \
 \                  or   ((λ n . n + 1) : ℕ → ℕ))  \
 \                 ((inr 1) : ⊤ ⊎ ℕ)" ≡ inj₁ (Nat , lam (caseo (lam zeroo [ p ] $ q)
-                  (lam (lam (lam (iteNat q (suco q) (q [ p ]))) $ q $ suco zeroo) [ p ] $ q)) $ inr (suco zeroo)
-                  , (λ γ* → 2))
+                                                  (lam (iteNat (suco zeroo) (suco q) q) [ p ] $ q)) $ inr (suco zeroo)
+                                                 , λ γ* → 2)
 _ = refl
 
 -- we have built-in booleans but they are isomorphic to any type that has two values (i.e., set with cardinality two)

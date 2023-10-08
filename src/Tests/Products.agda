@@ -25,7 +25,7 @@ _ = refl
 _ : compile-eval "0 , false" ≡ inj₁ (Nat ×o Bool , ⟨ zeroo , false ⟩ , λ γ* → 0 , ff)
 _ = refl
 
--- right associativity of _×_ and _,_ gives us chains of products (triples, quadruples,...)
+-- right associativity of _×_ and _,_ gives us chains of products (triples, quadruples,..., collectively called tuples)
 _ : compile-eval "3,2,1,0" ≡ inj₁ (Nat ×o (Nat ×o (Nat ×o Nat))
                                 , ⟨ suco (suco (suco zeroo)) , ⟨ suco (suco zeroo) , ⟨ suco zeroo , zeroo ⟩ ⟩ ⟩
                                 , λ γ* → 3 , 2 , 1 , 0)
@@ -36,10 +36,11 @@ _ : compile-eval "1, trivial, (isZero 1)" ≡ inj₁ (Nat ×o (Unit ×o Bool)
                                                , λ γ* → 1 , triv , ff)
 _ = refl
 
-_ : compile-eval "trivial , 1+2 , ((λ x.x) : 𝕃 → 𝕃)" ≡ inj₁ (Unit ×o (Nat ×o (Bool ⇒ Bool)) ,
-                                                              ⟨ trivial , ⟨ lam (lam (iteNat q (suco q) (q [ p ])))
-                                                              $ suco zeroo $ suco (suco zeroo) , lam q ⟩ ⟩
-                                                            , λ γ* → triv , 3 , λ x → x)
+_ : compile-eval "trivial , 1+2 , ((λ x.x) : 𝕃 → 𝕃)" ≡ inj₁ ((Unit ×o (Nat ×o (Bool ⇒ Bool))) ,
+                                                       ⟨ trivial ,
+                                                       ⟨ iteNat (suco (suco zeroo)) (suco q) (suco zeroo)
+                                                       , lam q ⟩ ⟩
+                                                       , λ γ* → triv , 3 , (λ x → x))
 _ = refl
 
 -- destructing pairs

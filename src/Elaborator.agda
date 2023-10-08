@@ -111,10 +111,9 @@ private
                                                                      (λ γ* α* → iteℕ tt (λ x → ff) α*)))))
   _ = refl
 
-  _ : compile-eval "1 + 2 + 3" ≡ inj₁ (Nat , (lam (lam (iteNat q (suco q) (q [ p ]))) $
-                                             (lam (lam (iteNat q (suco q) (q [ p ]))) $
-                                             suco zeroo $ suco (suco zeroo)) $ suco (suco (suco zeroo)))
-                                           , λ γ* → 6)
+  _ : compile-eval "1 + 2 + 3" ≡ inj₁ (Nat , iteNat (suco (suco (suco zeroo))) (suco q)
+                                            (iteNat (suco (suco zeroo)) (suco q) (suco zeroo))
+                                           , (λ γ* → 6))
   _ = refl
 
   _ : compile "if true then else" ≡ inj₂ syntax-error

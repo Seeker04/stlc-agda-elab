@@ -75,10 +75,9 @@ _ = refl
 
 size = "(λ t. iteTree ((λ_. 1):ℕ→ℕ) (λ l r. l + r) t) : (Tree ℕ) → ℕ"
 
-_ : compile-eval size ≡ inj₁ (Ty.Tree Nat ⇒ Nat
-                           , lam (I.iteTree (lam (suco zeroo) [ p ] $ q) ((lam (lam (lam (lam (iteNat q (suco q) (q [ p ])))
-                             $ q [ p ] $ q)) [ p ] $ q) [ p ] $ q) q)
-                           , λ γ* t → STLC.iteTree (λ _ → 1) (λ l r → iteℕ r (λ x → suc x) l) t)
+_ : compile-eval size ≡ inj₁ (Ty.Tree Nat ⇒ Nat , lam (I.iteTree (lam (suco zeroo) [ p ] $ q)
+                                                ((lam (lam (iteNat q (suco q) (q [ p ]))) [ p ] $ q) [ p ] $ q) q)
+                                                , λ γ* t → STLC.iteTree (λ _ → 1) (λ l r → iteℕ r (λ x → suc x) l) t)
 _ = refl
 
 _ : eval (size ++ₛ "<3>")                        ≡ inj₁ (Nat , λ γ* → 1)
@@ -90,10 +89,9 @@ _ = refl
 
 sum = "(λ t. iteTree ((λx. x):ℕ→ℕ) (λ l r. l + r) t) : (Tree ℕ) → ℕ"
 
-_ : compile-eval sum ≡ inj₁ (Ty.Tree Nat ⇒ Nat
-                          , lam (I.iteTree (lam q [ p ] $ q) ((lam (lam (lam (lam (iteNat q (suco q) (q [ p ])))
-                            $ q [ p ] $ q)) [ p ] $ q) [ p ] $ q) q)
-                          , λ γ* t → STLC.iteTree (λ x → x) (λ l r → iteℕ r (λ x → suc x) l) t)
+_ : compile-eval sum ≡ inj₁ (Ty.Tree Nat ⇒ Nat , lam (I.iteTree (lam q [ p ] $ q)
+                                               ((lam (lam (iteNat q (suco q) (q [ p ]))) [ p ] $ q) [ p ] $ q) q)
+                                               , λ γ* t → STLC.iteTree (λ x → x) (λ l r → iteℕ r (λ x → suc x) l) t)
 _ = refl
 
 _ : eval (sum  ++ₛ "<3>")                        ≡ inj₁ (Nat , λ γ* → 3)

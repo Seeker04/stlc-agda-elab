@@ -21,12 +21,15 @@ open STLC.I
 --                            put      set    get  seed    -- put: we increment the sum with the input
 sum-machine = "genMachine (λs i. s+i) (λ_.0) (λs.s) 0"     -- set: resets the sum to 0
                                                            -- get: returns the current sum (what's in "memory")
-_ : compile-eval sum-machine ≡ inj₁ (Ty.Machine
-                 , I.genMachine ((lam (lam (lam (lam (iteNat q (suco q) (q [ p ]))) $ q [ p ] $ q)) [ p ] $ q) [ p ] $ q)
-                                (lam zeroo [ p ] $ q)
-                                (lam q [ p ] $ q)
-                                 zeroo
-                 , λ γ* → STLC.genMachine (λ s i → iteℕ i (λ y → suc y) s) (λ x → 0) (λ x → x) 0)
+_ : compile-eval sum-machine ≡ inj₁ (Ty.Machine ,
+                 I.genMachine ((lam (lam (iteNat q (suco q) (q [ p ]))) [ p ] $ q) [ p ] $ q)
+                              (lam zeroo [ p ] $ q)
+                              (lam q [ p ] $ q)
+                              zeroo
+                 , λ γ* → STLC.genMachine (λ s i → iteℕ i (λ x → suc x) s)
+                                          (λ _ → 0)
+                                          (λ s → s)
+                                          0)
 _ = refl
 
 -- destructors: put (inserts value), set (sends a signal), get (returns state)
@@ -57,36 +60,43 @@ partitioned-sums = "genMachine                                                  
 \                     (λs. if (fst s) then (fst snd s) else (snd snd s))        \
 \                     (true , 0 , 0)"
 
-_ : compile-eval partitioned-sums ≡ inj₁ (Ty.Machine , I.genMachine
-                                  ((lam (lam
-                                    (iteBool
-                                      ⟨ fst (q [ p ]) ,
-                                      ⟨ fst (snd (q [ p ])) ,
-                                        lam (lam (iteNat q (suco q) (q [ p ]))) $ snd (snd (q [ p ])) $ q ⟩
-                                      ⟩
-                                      ⟨ fst (q [ p ]) ,
-                                      ⟨ lam (lam (iteNat q (suco q) (q [ p ]))) $ fst (snd (q [ p ])) $ q ,
-                                        snd (snd (q [ p ])) ⟩
-                                      ⟩
-                                      (lam (iteNat true (lam (lam (iteBool false true q) $ q) [ p ] $ q) q) $ q))
-                                    ) [ p ] $ q) [ p ] $ q)
-                                  (lam
-                                    ⟨ lam (iteBool false true q) $ fst q ,
-                                    ⟨ fst (snd q) , snd (snd q) ⟩ ⟩ [ p ] $ q)
-                                  (lam (iteBool (fst (snd q)) (snd (snd q)) (fst q)) [ p ] $ q)
-                                  ⟨ true , ⟨ zeroo , zeroo ⟩ ⟩
+_ : compile-eval partitioned-sums ≡ inj₁ (Ty.Machine ,
+ I.genMachine
+ ((lam (lam
+   (iteBool
+     ⟨ fst (q [ p ]) , ⟨ fst (snd (q [ p ])) , iteNat q (suco q) (snd (snd (q [ p ]))) ⟩ ⟩
+     ⟨ fst (q [ p ]) , ⟨ iteNat q (suco q) (fst (snd (q [ p ]))) , snd (snd (q [ p ])) ⟩ ⟩
+     (lam (iteNat true (lam (lam (iteBool false true q) $ q) [ p ] $ q) q) $ q))) [ p ] $ q) [ p ] $ q)
 
-                                  ,
+ (lam
+   ⟨ lam (iteBool false true q) $ fst q ,
+   ⟨ fst (snd q) ,
+   snd (snd q) ⟩ ⟩
+   [ p ] $ q)
 
-                                  λ γ* → STLC.genMachine
-                                   (λ s i →
-                                     if iteℕ tt (λ x₁ → if x₁ then ff else tt) i then
-                                       proj₁ s , proj₁ (proj₂ s) , iteℕ i (λ x₁ → suc x₁) (proj₂ (proj₂ s))
-                                     else
-                                       proj₁ s , iteℕ i (λ x₁ → suc x₁) (proj₁ (proj₂ s)) , proj₂ (proj₂ s))
-                                   (λ s → (if proj₁ s then ff else tt) , proj₁ (proj₂ s) , proj₂ (proj₂ s))
-                                   (λ s → if proj₁ s then proj₁ (proj₂ s) else proj₂ (proj₂ s))
-                                   (tt , 0 , 0))
+ (lam (iteBool (fst (snd q)) (snd (snd q)) (fst q)) [ p ] $ q)
+
+ ⟨ true , ⟨ zeroo , zeroo ⟩ ⟩
+
+ ,
+
+ (λ γ* → STLC.genMachine
+    (λ s i →
+       if iteℕ tt (λ b → if b then ff else tt) i then
+         proj₁ s ,
+         proj₁ (proj₂ s) ,
+         iteℕ i (λ x → suc x) (proj₂ (proj₂ s))
+       else
+         proj₁ s ,
+         iteℕ i (λ x → suc x) (proj₁ (proj₂ s)) ,
+         proj₂ (proj₂ s))
+
+    (λ s → (if proj₁ s then ff else tt) , proj₁ (proj₂ s) , proj₂ (proj₂ s))
+
+    (λ s → if proj₁ s then proj₁ (proj₂ s) else proj₂ (proj₂ s))
+
+    (tt , 0 , 0)))
+
 _ = refl
 
 _ : eval ("get put put put put"     ++ partitioned-sums ++ "3 10 1 8") ≡ inj₁ (Nat , λ γ* → 4)

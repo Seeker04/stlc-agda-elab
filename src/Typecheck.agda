@@ -246,7 +246,7 @@ infer Γ (abt-isZero t) with infer Γ t
 ... | _               = nothing
 
 infer Γ (u abt-+ v) with infer Γ u | infer Γ v
-... | just (Nat , u') | just (Nat , v') = just (Nat , lam (lam (iteNat q (suco q) (q [ p ]))) $ u' $ v')
+... | just (Nat , u') | just (Nat , v') = just (Nat , iteNat v' (suco q) u')
 ... | _               | _               = nothing
 
 infer Γ (abt-num 0) = just (Nat , zeroo)
@@ -405,14 +405,10 @@ check Γ A t with infer Γ t
 private
   _ : infer ◇ (abt-num 1 abt-+ abt-true) ≡ nothing
   _ = refl
-
-  _ : infer ◇ (abt-num 1 abt-+ abt-num 2) ≡ just (Nat , lam (lam (iteNat q (suco q) (q [ p ])))
-                                                        $ suco zeroo $ suco (suco zeroo))
+  _ : infer ◇ (abt-num 1 abt-+ abt-num 2) ≡ just (Nat , iteNat (suco (suco zeroo)) (suco q) (suco zeroo))
   _ = refl
   _ : infer ◇ (abt-ann (abt-λ (abt-λ
               (abt-var (suc Fin.zero) abt-+ abt-var Fin.zero)))
-              (s-Nat s-→ (s-Nat s-→ s-Nat))) ≡ just (Nat ⇒ Nat ⇒ Nat ,
-                                                     lam (lam (lam (lam
-                                                     (iteNat q (suco q) (q [ p ]))) $ q [ p ] $ q)))
+              (s-Nat s-→ (s-Nat s-→ s-Nat))) ≡ just (Nat ⇒ Nat ⇒ Nat , lam (lam (iteNat q (suco q) (q [ p ]))))
 
   _ = refl
