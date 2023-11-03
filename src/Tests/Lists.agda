@@ -188,7 +188,7 @@ _ : compile-eval map ≡ inj₁ ((Nat ⇒ Nat) ⇒ Ty.List Nat ⇒ Ty.List Nat
                           , λ γ* f xs → STLC.iteList [] (λ a as → f a ∷ as) xs)
 _ = refl
 
-_ : eval (map ++ₛ double ++ₛ "[3,0,11,23]") ≡ inj₁ (Ty.List Nat , (λ γ* → 6 ∷ (0 ∷ (22 ∷ (46 ∷ [])))))
+_ : eval (map ++ₛ double ++ₛ "[3,0,11,23]") ≡ inj₁ (Ty.List Nat , λ γ* → 6 ∷ (0 ∷ (22 ∷ (46 ∷ []))))
 _ = refl
 _ : eval (map ++ₛ double ++ₛ "[]") ≡ inj₁ (Ty.List Nat , λ γ* → [])
 _ = refl

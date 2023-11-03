@@ -108,12 +108,12 @@ private
                                                   just (s-ann (s-λ ("x" ∷ []) (s-isZero (s-var "x"))) (s-Nat s-→ s-Bool) ,
                                                   just (abt-ann (abt-λ (abt-isZero (abt-var Fin.zero))) (s-Nat s-→ s-Bool) ,
                                                   just (Nat ⇒ Bool , lam (iteNat true false q) ,
-                                                                     (λ γ* α* → iteℕ tt (λ x → ff) α*)))))
+                                                                     λ γ* x → iteℕ tt (λ _ → ff) x))))
   _ = refl
 
   _ : compile-eval "1 + 2 + 3" ≡ inj₁ (Nat , iteNat (suco (suco (suco zeroo))) (suco q)
                                             (iteNat (suco (suco zeroo)) (suco q) (suco zeroo))
-                                           , (λ γ* → 6))
+                                           , λ γ* → 6)
   _ = refl
 
   _ : compile "if true then else" ≡ inj₂ syntax-error

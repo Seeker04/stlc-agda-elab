@@ -61,7 +61,7 @@ _ = refl
 -- function that extracts the third component from triples of ℕ
 third = "(λ t. snd snd t) : (ℕ × ℕ × ℕ → ℕ)"
 
-_ : compile-eval third ≡ inj₁ (Nat ×o (Nat ×o Nat) ⇒ Nat , lam (snd (snd q)) , λ γ* α* → π₂ (π₂ α*))
+_ : compile-eval third ≡ inj₁ (Nat ×o (Nat ×o Nat) ⇒ Nat , lam (snd (snd q)) , λ γ* t → π₂ (π₂ t))
 _ = refl
 
 _ : eval (third ++ₛ "10, 20, 30") ≡ inj₁ (Nat , (λ γ* → 30))

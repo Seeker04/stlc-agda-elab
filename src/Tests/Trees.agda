@@ -58,7 +58,7 @@ _ = refl
 {-       .
         / \.
    [2,0]  / \
-        [1]  [0,1]
+        [1]  [0,0,1]
 -}
 _ : compile-eval "<[2,0]> | (<[1]> | <[0,0,1]>)" ≡ inj₁ (Ty.Tree (Ty.List Nat)
                                                , I.node (I.leaf (cons (suco (suco zeroo)) (cons zeroo nil)))
