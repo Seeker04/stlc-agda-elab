@@ -1,5 +1,31 @@
 \chapter{Related work}
 \label{ch:relatedwork}
 
-TODO
+\noindent\textbf{Agda and underlying theories}
+
+Agda \cite{agda} is a dependently typed programming language and theorem prover based on Martin-Löf's intuitionistic type theory \cite{martin1984intuitionistic}. We could use any language, e.g., Haskell, as our meta theory, implementing a compiler from the set of strings to some algebraic data type, however we would miss out the \textit{mathematical rigorousness} we mentioned in the introduction.
+
+The expressiveness and rigorousness of Agda's type system comes from the Curry-Howard isomorphism, which, gives us \textit{propositions-as-types} and \textit{proofs-as-programs}. Combining this with dependent types, allows us to formalise and prove statements in first-order predicate logic. S{\o}rensen and Urzyczyn had published a great collection of literature about the isomorphism and related theories \cite{sorensen1998curry}. In particular, we recommend reading Chapters 1-4, 6, 9 and 10 of their work the most. They introduce the intuitionistic logical foundations and the basis of simply typed \verb$λ$-calculus. Also, in Chapter 11.6 they present Gödel's System T, which stands even closer to our language than the baseline simply typed \verb$λ$-calculus.
+
+In practice, the above means that by using dependent functions and products, usually notated \verb$Π$ and \verb$∑$, respectively, we can encode universally and existentially quantified, i.e., first-order, statements in Agda's types, then prove said statements by constructing terms of these types.
+
+Furthermore, having dependent types, that correspond to propositions, as first-class citizens in our meta language, allows us to build models quotiented by equations. This in essence, means that we can write record fields with types that are propositions of equality and need equality proofs when instancing, giving us a means to formalise categories and inference rules for operational semantics, discussed in Chapter \ref{sec:algebraic-def}.
+
+As a result, the algebraic terms in our object language cannot be badly scoped or badly typed by definition and we also get decidable program equality, interpretation into our metatheoretic language, and even normalisation, i.e., a form of evaluation as seen in Chapter \ref{sec:normalisation}\\
+
+\noindent\textbf{agda-stdlib}
+
+Agda standard library \cite{The_Agda_Community_Agda_Standard_Library_2023} is a project that collects the most commonly used constructions for both programming and theorem proving under one easy to access umbrella. We chose to reuse the fundamental types and functions, e.g., \verb$Bool$, \verb$Nat$, \verb$Maybe$, \verb$List$, from this library instead of reimplementing these concepts.\\
+
+\noindent\textbf{agdarsec}
+
+Agdarsec \cite{allais2018agdarsec} plays a crucial role in our toolchain. It is a total parser combinator library written in Agda. Parser combinators give us a high level interface for building complex parsers by composing simpler primitives. Totality means that by the definition of its type, we cannot write non-terminating parsers, i.e., Agda's termination checker would not accept such constructions. In order to circumvent this, the library builds fixpoints by using a form of guarded recursion and sized types. This gives us strong guarantees: non-advancing parsers or problematic left recursive grammar rules are simply not type correct in this framework. Veltri and Weide \cite{veltri2019guarded} not only discuss guarded recursion, sized types and their relation, but they also work in Agda on an object language similar to ours, e.g., their terms, substitution calculus, quotients are all similar.\\
+
+\noindent\textbf{Type systems formalisation}
+
+The formalisation we use as our object theory was written by Ambrus Kaposi as course notes for the Type systems lecture at ELTE-IK \cite{typesystems-repo}. We took his \verb$STT$, \verb$Fin$, \verb$Ind$ and \verb$Coind$ languages - standing for \textit{Simple Type Theory}, \textit{finite}, \textit{inductive} and \textit{coinductive} types, respectively - and merged them into a single model we call \verb$STLC$, i.e., Simply Typed Lambda Calculus.
+
+Our extension to his work, which is also the uniqueness of our study, is the elaboration toolchain, discussed at \cite{godelTalk}, that we will present in greater detail.
+
+Note that, while our language contains some less common constructions - mostly for demonstration purposes - like trees and streams, these are still usually considered simple types. We do not support dependent or polymorphic types or even full recursion (which would require a fixpoint combinator), but our formalisation could be extended in the future with some of these concepts.
 

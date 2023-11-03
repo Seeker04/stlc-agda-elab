@@ -3,13 +3,31 @@
 
 \section{Results}
 
-TODO
+This paper has introduced readers to the formalisation of a small language based on simply typed \verb$λ$-calculus. We guided them through each elaboration step of the language, going from source code to well-typed terms and interpretation results. The steps include lexing, parsing, scope checking, type checking and a meta theoretic interpretation that serves as a form of semantical evaluation. We presented algebraic definitions and total conversions between them, formalised in Agda for a solution that is correct by construction. We picked conventional and well-known syntactic elements for both the base STLC constructions and its included extensions.
+
+This study also explains some inductive types like lists and trees, formal definitions for their iteration, as well as implementations of some standard functions on them. We also briefly touched upon coinductive types, along their introduction and elimination rules through our \verb$Stream$ and \verb$Machine$ types.
+
+Our framework provides an easy to use interface consisting of a small set of high-level functions for users to test and experiment on STLC terms. We report errors encountered on various levels of the elaboration stack, e.g., syntax errors, scope errors and type errors.
+
+Our codebase remains publicly accessible for anyone on GitHub and is open for future study and development \cite{home-repo}.
 
 \section{Discussion}
 
-TODO
+At an early stage of development, we limited our type annotations to lambda terms, which we called "annotated lambdas". This meant that each variable binding in a lambda could be annotated, so we wrote \verb$"λx:ℕ y:ℕ.x+y"$ instead of \verb$"(λx y.x+y):ℕ→ℕ"$. This worked, however, we later realised that lambdas are not the only terms that need type annotations. For example, the empty list, \verb$nil$, or terms of sum types like \verb$inl true$, also need annotation, otherwise it is impossible to infer their complete types. That is why we dropped our "annotated lambda" syntax and introduced the general type annotation for arbitrary terms instead.
+
+Note that the "annotated lambda" method is similar to Church's STLC definition, where abstractions have \textit{domains}, e.g., \verb$λx:σ.M$; opposed to Curry's one, which would instead write \verb$λx.M : σ→σ$ \cite{sorensen1998curry}.
+
+Performance is definitely not the strong suit of our elaborator. Type checking of files with a few dozen examples, or ones with slightly more complex constructions, such as \verb$partitioned-sums$, sometimes took up to a minute on average hardware. We suspect that this is due to the high amount of implicit arguments Agda has to lookup and substitute. It is not obvious which part of the elaboration stack would be a good target for optimisation. Benchmarking shows that parsing takes a substantial amount of time, so it might be a good candidate. Type checking could potentially be smarter if we included some "optimisation steps", ones like simplification using the \verb$η$-reduction principle, turning \verb$lam q [ p ] $\verb$$\verb=$=\verb$$\verb$ q$ to \verb$lam q$. This way Agda would get structurally smaller terms earlier.
 
 \section{Future work}
 
-TODO
+We already touched on the idea of injecting a lexer independent of agdarsec into our toolchain. The main demand for this comes from the fact that the one parametrised with the functions \verb$keyword$, \verb$breaking$ and \verb$default$ cannot fail. This currently results in overly permissive variable names and an unused \verb$lexical-error$ case in the elaboration.
+
+There are many aspects we could improve upon our parser. A cleverer implementation would probably spare us some parentheses. For example, function application always requires one, like in \verb$"((λx.x):ℕ→ℕ) 1"$. This so far, looks reasonable, but looks less right once we apply more than one arguments: \verb$"(((λx y.x+y):ℕ→ℕ→ℕ) 1) 2"$. Solving this in the total parser however, is not a trivial task.
+
+Less obvious is the fact that type inference could also be improved upon. Here we mean that a smarter implementation would alleviate the need for many type annotations. For example, as discussed previously, it is reasonable to expect annotation for \verb$"λx.x"$, since \verb$x$ can be any type and we do not support polymorphic functions. However, if we look at \verb$"λx.isZero x"$, it is apparent that \verb$x$ must be \verb$ℕ$ for the term to be type correct. Dual to this is the case where we would have to analyse not the body, but the context of the abstraction, like in \verb$"(λx.x) 3"$. Here it is obvious that the function's type must be \verb$ℕ→ℕ$. The current implementation, as shown on Code \ref{code:typecheck-infer-lam}, first infers the type of the function and then checks whether the argument has the correct type, not the other way around. It might be reasonable to implement a solution that tries both ways of inference and checking to lower the number of function type annotations required.
+
+The framework would entail a considerably more complete study, if we also included a normalisation of our own. We briefly mentioned this in Chapter \ref{sec:normalisation}. It could be a future update merge from the formalisation codebase we initially forked from \cite{typesystems-repo}, if the normalisation ever got finished.
+
+An even greater undertaking would be to boost the expressibility of the presented language by introducing higher order concepts, like type polymorphism or full recursion for the function space by using some form of fixpoint combinator.
 

@@ -17,17 +17,24 @@
 \usepackage{unicode-math}
 \usepackage{fontspec}
 
-\setmonofont{XITS}
-[    Extension      = .otf,
-     UprightFont    = *-Regular,
-     BoldFont       = *-Bold,
-     ItalicFont     = *-Italic,
-     BoldItalicFont = *-BoldItalic,
-]
+\usepackage{DejaVuSans}
+\setmonofont[Scale=0.8]{DejaVuSansMono}
+%\setmonofont{XITS}
+%[    Extension      = .otf,
+%     UprightFont    = *-Regular,
+%     BoldFont       = *-Bold,
+%     ItalicFont     = *-Italic,
+%     BoldItalicFont = *-BoldItalic,
+%]
 \setmathfont{XITSMath-Regular}
 [    Extension      = .otf,
      BoldFont       = XITSMath-Bold,
 ]
+
+\usepackage{newunicodechar}
+\newunicodechar{𝕃}{\ensuremath{\mathbb{L}}}
+\newunicodechar{ℓ}{\ensuremath{\mathbb{l}}}
+\newunicodechar{𝟚}{\ensuremath{\mathbb{2}}}
 
 % Document's metadata
 \title{Agda formalisation of an elaborator for a language based on simply typed lambda calculus} % title
@@ -75,10 +82,10 @@
 \input{chapters/intro.tex}
 \cleardoublepage
 
-\input{chapters/relatedwork.tex}
+\input{chapters/outline.tex}
 \cleardoublepage
 
-\input{chapters/outline.tex}
+\input{chapters/relatedwork.tex}
 \cleardoublepage
 
 \input{chapters/implementation.tex}
@@ -90,7 +97,9 @@
 % Acknowledgements (optional) - in case your thesis received funding or would like to express special thanks to someone
 \chapter*{\acklabel}
 \addcontentsline{toc}{chapter}{\acklabel}
-TODO
+First and foremost, I would like to thank my supervisor, Ambrus Kaposi. He formalised the well-typed algebra of the presented language, provided theoretic and technical help, and guided me through the challenges of writing this paper.
+
+Additionally, I would also like to thank my close family for staying supportive in life throughout all years of my university studies.
 
 % Appendices (optional) - useful for detailed information in long tables, many and/or large figures, etc.
 %\appendix
@@ -104,22 +113,22 @@ TODO
 \cleardoublepage
 
 % List of figures (optional) - useful over 3-5 figures
-\phantomsection
-\addcontentsline{toc}{chapter}{\lstfigurelabel}
-\listoffigures
-\cleardoublepage
+%\phantomsection
+%\addcontentsline{toc}{chapter}{\lstfigurelabel}
+%\listoffigures
+%\cleardoublepage
 
 % List of tables (optional) - useful over 3-5 tables
-\phantomsection
-\addcontentsline{toc}{chapter}{\lsttablelabel}
-\listoftables
-\cleardoublepage
+%\phantomsection
+%\addcontentsline{toc}{chapter}{\lsttablelabel}
+%\listoftables
+%\cleardoublepage
 
 % List of algorithms (optional) - useful over 3-5 algorithms
-\phantomsection
-\addcontentsline{toc}{chapter}{\lstalgorithmlabel}
-\listofalgorithms
-\cleardoublepage
+%\phantomsection
+%\addcontentsline{toc}{chapter}{\lstalgorithmlabel}
+%\listofalgorithms
+%\cleardoublepage
 
 % List of codes (optional) - useful over 3-5 code samples
 \phantomsection

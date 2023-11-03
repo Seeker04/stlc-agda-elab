@@ -542,8 +542,8 @@
 	% and set the labels for the listings 
 	\@ifpackageloaded{minted}{
 		\setminted{
-			style=tango,
-			numbers=left,
+			style=emacs,
+			%numbers=left,
 			stepnumber=1,
 			firstnumber=1,
 			numbersep=5pt,
@@ -551,8 +551,9 @@
 			showtabs=false,
 			tabsize=2,
 			breaklines=true,
-			frame=lines,
-			bgcolor=codebackg,
+			%frame=lines,
+			%bgcolor=codebackg,
+			fontsize=\small,
 		}
 		\SetupFloatingEnvironment{listing}{
 			name=\codelabel,        % set name for code blocks

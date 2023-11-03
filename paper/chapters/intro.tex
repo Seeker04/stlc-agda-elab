@@ -3,9 +3,79 @@
 
 \section{Motivation}
 
-TODO
+Our goal was to formalise an elaborator using Agda that presents all steps of describing a simple language in a mathematically rigorous, yet practical and easy to run framework. Elaboration means that we refine the concept of the language from broader ideas to stricter ones, while moving from more concrete representations towards more abstract ones.
+
+The language - which we will often refer to as our \textit{object language}, \textit{object theory} or \textit{well-typed syntax with quotients} - is based on simply typed lambda calculus (STLC) à la Church and à la Curry. Our formalisation stands closer to Curry's system. It has function space, i.e., abstraction and application, and a few extensions, like finite types: booleans, products and sums; inductive types: naturals, lists, trees; and coinductive types like streams and simple state machines.
+
+The elaboration consists of lexical analysis, parsing, scope checking, bidirectional type checking (we refer to these as \textit{compilation steps}); as well as standard model interpretation into our meta language and normalisation by Agda (we call these the \textit{evaluation steps}).
+
+By rigorousness, we mean that our code is correct by construction in multiple aspects. Agda - our \textit{meta theory} or \textit{metatheoretic language} - is a purely functional and total language, so we cannot get unwanted side effects, unhandled cases, runtime exceptions, or even non-terminating computations. The latter two could be potential sources of issues if we used Haskell, for example. Another aspect is that our representations are algebraic theories giving us strong guarantees. For example, our abstract binding trees cannot be badly scoped, or our well-typed terms cannot be badly typed by the very definitions of these constructs. Moreover, the theorem proving nature of Agda also helps us with formalising and proving statements about our language, e.g., program equivalence can be verified.
+
+Ease of use and transparency comes in the form of our top-level functions: \verb$elaborate$ returns each intermediate steps leading up to the final compilation and evaluation results, or until an error occurs, e.g., syntax error, scope error, etc. This provides the user deeper insight into the abstract representations and reasons of potential errors. We can also run \verb$compile$ or \verb$eval$ when only caring about the compilation or evaluation results, or their \verb$compileM$ and \verb$evalM$ versions when a Maybe monadic return value is desired.
+
+Here, on Code \ref{code:intro-examples} we present a few small examples for giving the reader a quick taste of our language's syntax and our elaborator's capabilities. We omit all the \verb$_ = refl$ proof lines for brevity.
+
+\begin{listing}[H]
+\begin{minted}{agda}
+_ : compile "((10)"                     ≡ inj₂ syntax-error
+_ : compile "(λ foo. bar) : ℕ → ℕ"      ≡ inj₂ scope-error
+_ : compile "if true then 0 else false" ≡ inj₂ type-error
+
++1       = "(λ x. x+1)   : ℕ → ℕ"
+double   = "(λ x. x+x)   : ℕ → ℕ"
+triple   = "(λ x. x+x+x) : ℕ → ℕ"
+plus     = "(λ x y. iteℕ x (λz.z + 1) y) : ℕ → ℕ → ℕ"
+multiply = "(λ x y. iteℕ 0 (λz.z + x) y) : ℕ → ℕ → ℕ"
+twice    = "(λ f x. f f x)   : (ℕ → ℕ) → ℕ → ℕ"
+3-times  = "(λ f x. f f f x) : (ℕ → ℕ) → ℕ → ℕ"
+∘        = "(λ f g x. f g x) : (ℕ → ℕ) → (ℕ → ℕ) → ℕ → ℕ"
+
+_ : eval (triple ++ₛ "8")                   ≡ inj₁ (Nat , λ γ* → 24)
+_ : eval (plus ++ₛ "3" ++ₛ "8")             ≡ inj₁ (Nat , λ γ* → 11)
+_ : eval (multiply ++ₛ "6" ++ₛ "20")        ≡ inj₁ (Nat , λ γ* → 120)
+_ : eval (3-times ++ₛ +1 ++ₛ "10")          ≡ inj₁ (Nat , λ γ* → 13)
+_ : eval (∘ ++ₛ double ++ₛ triple ++ₛ "10") ≡ inj₁ (Nat , λ γ* → 60)
+
+sum = "(λ xs. iteList 0 (λ x y. x + y) xs) : [ℕ] → ℕ"
+map = "(λ f xs. iteList (nil : [ℕ]) (λ a as. (f a) ∷ as) xs) : (ℕ → ℕ) → [ℕ] → [ℕ]"
+
+_ : eval (sum ++ₛ "[]")             ≡ inj₁ (Nat , λ γ* → 0)
+_ : eval (sum ++ₛ "[10, 7, 20, 1]") ≡ inj₁ (Nat , λ γ* → 38)
+_ : eval (map ++ₛ double ++ₛ "[3,0,11,23]") ≡ inj₁ (Ty.List Nat ,
+                                              λ γ* → 6 ∷ (0 ∷ (22 ∷ (46 ∷ []))))
+_ : eval (map ++ₛ double ++ₛ "[]") ≡ inj₁ (Ty.List Nat , λ γ* → [])
+\end{minted}
+\caption{Introductory examples of compilation and evaluation results}
+\label{code:intro-examples}
+\end{listing}
 
 \section{Glossary}
 
-TODO
+\verb$STLC$ = Simply Typed Lambda Calculus
+
+\verb$AST$ = Abstract Syntax Tree
+
+\verb$ABT$ = Abstract Binding Tree
+
+\verb$constructor$ = type introduction rule, e.g., true, false
+
+\verb$destructor$ = type elimination rule, e.g., if\textunderscore then\textunderscore else\textunderscore
+
+\verb$Ty$ = Type of our object language
+
+\verb$Tm$ = Term of our object language
+
+\verb$Con$ = Context of our object language
+
+\verb$Sub$ = Substitution in our object language
+
+\verb$St$ = Standard model of our object language
+
+\verb$ite$ = "if then else", or "iterator of" when used as a prefix, e.g., in \verb$iteℕ$
+
+\verb$nil$ = constructor of the empty list
+
+\verb$cons$ = head-tail constructor of non-empty lists
+
+\verb$zero, suc$ = constructors of Peano arithmetic
 
