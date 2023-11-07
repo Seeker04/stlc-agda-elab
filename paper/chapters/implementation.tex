@@ -820,7 +820,7 @@ We do not include the whole formalisation of our models in this and the followin
 
 In Chapter \ref{sec:typecheck}, we already introduced the reader to some of the concepts in our object theory, such as \verb$Ty$, \verb$Con$ and \verb$Tm$. Now we will explain the full substitution calculus and some other quotients that formalise desired \verb$β$ and \verb$η$ equivalences between terms of our language. Structures like these are sometimes called \textit{quotient inductive-inductive types}, or QIITs \cite{altenkirch2018quotient}.
 
-Each \verb$λ$-abstraction binds a variable, introducing a new scope. We can mathematically express this using substitutions. Usual notations for rewriting \verb$(λx.M)N$ to substitution form include \verb$M[x := N]$ and \verb$M[x ↤ N]$. If we have a scope with multiple bound variables, e.g., \verb$(λx.(λy.(λz.M))) N₁ N₂ N₃$, we may write \verb$M[x := N₁, y := N₂, z := N₃]$. However on this level, we use De Bruijn indices, so we can omit the variable names: \verb$M[N₁, N₂, N₃]$. The notation we employ is \verb$t [u ,o v ,o w]$, since we use the letters \verb$t$, \verb$u$, \verb$v$, etc., for terms and \verb$,o$ for syntactic distinction between our object and meta languages.
+Each \verb$λ$-abstraction binds a variable, introducing a new scope. We can mathematically express this using substitutions. Usual notations for rewriting \verb$(λx.M)N$ to substitution form include \verb$M[x := N]$ and \verb$M[x ↤ N]$. This means that we replace all occurrences of the variable \verb$x$ in \verb$M$ with \verb$N$. If we have a scope with multiple bound variables, e.g., \verb$(λx.(λy.(λz.M))) N₁ N₂ N₃$, we may write \verb$M[x := N₁, y := N₂, z := N₃]$. However on this level, we use De Bruijn indices, so we can omit the variable names: \verb$M[N₁, N₂, N₃]$. The notation we employ is \verb$t [u ,o v ,o w]$, since we use the letters \verb$t$, \verb$u$, \verb$v$, etc., for terms and \verb$,o$ for syntactic distinction between our object and meta languages.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -933,7 +933,7 @@ iteBool[] : ∀{Γ A t u v Δ}{γ : Sub Δ Γ} →
 \label{code:ot-bools}
 \end{listing}
 
-The equalities we decorate our algebra with can be viewed as a set of \textit{inference rules}, that entails a form of \textit{structural operational semantics} \cite{plotkin1981structural}. In practice, this means that we can transform terms of the well-typed syntax along series of equalities using Agda's \textit{equational reasoning}. This logic stands as the first building block towards normalisation.
+The equalities we decorate our algebra with can be viewed as a set of \textit{inference rules}, that entails a form of \textit{structural operational semantics} \cite{plotkin1981structural}. In practice, this means that we can transform terms of the well-typed syntax along series of equalities using Agda's \textit{equational reasoning}. This logic stands as the first building block towards normalisation and semantical meaning of programs.
 
 Code \ref{code:ot-eq-reasoning} presents an example where we prove that the well-typed term compiled from \verb$"if isZero 1 then 0 else 1+1"$ is equivalent to the one compiled from \verb$"2"$.
 
