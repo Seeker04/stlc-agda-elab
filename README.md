@@ -14,7 +14,7 @@ We discuss both the benefits and difficulties of the presented solution and comp
 
 ## About
 
-This project started as an extension to an existing formalisation. The well-typed description, also quotiented by equations, that you can see in [STLC.agda](src/STLC.agda) was written by Ambrus Kaposi [here](https://bitbucket.org/akaposi/typesystems/src/master/).
+This project started as an extension to an existing formalisation. The quotiented well-typed description that you can see in [STLC.agda](src/STLC.agda) was written by Ambrus Kaposi [here](https://bitbucket.org/akaposi/typesystems/src/master/).
 
 If you wish to see the commits of the elaborator from before going independent, you can find them [in this fork](https://bitbucket.org/zahoranb/typesystems/commits/).
 
