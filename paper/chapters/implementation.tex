@@ -10,7 +10,7 @@ First we present a bird's-eye overview of our elaboration stack on Figure \ref{f
 	\label{fig:architecture}
 \end{figure}
 
-From our seven representations: string and list of tokens are trivial; AST and ABT are simple inductive data types; and Agda terms, whether in normal form or not, are in the metatheoretic domain, which we do not have to deal with. The Well-typed term level, i.e., our object theory, is the only one that bears a more complex definition.
+From our seven representations: string and list of tokens are trivial; AST and ABT are simple inductive data types (albeit the latter is indexed by \verb$ℕ$); and Agda terms, whether in normal form or not, are in the metatheoretic domain, which we do not have to deal with. The Well-typed term level, i.e., our object theory, is the only one that bears a more complex definition.
 
 From the six transitions between our levels of abstractions: lexical analysis and parsing are solved in a high-level approach using the agdarsec library; scope checking, type inference and standard model interpretation bear more in-depth explanations; and Agda normalisation is again, not part of our domain.
 
@@ -47,7 +47,7 @@ data Tok : Set where
 \label{code:lex-tok}
 \end{listing}
 
-We have 50 tokens in total. This includes symbols like \verb$t-dot$, \verb$t-lpar$ and \verb$t-rpar$, standing for the '.' in a \verb$λ$ binding and for the '(' and ')' parentheses, respectively. On Code \ref{code:lex-tok}, and also in other code examples to follow in our paper, we do not list all cases, only a few that can serve as examples and the more notable ones. We insert "..." comments where code is omitted from the middle of a snippet.
+We have 50 tokens in total. This includes symbols like \verb$t-dot$, \verb$t-lpar$ and \verb$t-rpar$, standing for the '.' in a \verb$λ$ binding and for the '(' and ')' parentheses, respectively. On Code \ref{code:lex-tok}, and also in other code examples to follow in our thesis, we do not list all cases, only a few that can serve as examples and the more notable ones. We insert "..." comments where code is omitted from the middle of a snippet.
 
 Tokens that need information attached are indexed. In particular, \verb$t-num$ and \verb$t-var$ store the natural numbers and variable names read from the source code, respectively.
 
@@ -144,7 +144,7 @@ The lexer itself is parametrized with the three functions discussed above using 
 
 Like with lexical analysis, our first approach was to implement our own parsing algorithm. This meant a recursive function that simulated a state machine. There were two problems with this approach. First, Agda's termination checker rejected recursive calls at binary and ternary operators, with no trivial way around it, i.e., without implementing some form of fixpoint combinator. Second, our implementation could only handle the Polish notation of STLC, i.e., operators had to be written in prefix order: \verb$+ 1 + 2 3$ instead of \verb$1 + 2 + 3$. Implementing infix syntax for operators like \verb$_+_$, function application with no symbol required, and support for parenthesis proved to be far from trivial. In essence, we would have had to implement a parser combinator library of our own. In order to avoid reinventing the wheel, we opted to use agdarsec for building our AST.
 
-Setting up agdarsec's parser takes substantial importing and argument instancing work, mostly concerning monadic constructions. We chose to omit these implementation details from this paper. Those who are interested can find the code in our repository \cite{home-repo}, or can see similar usages among the examples distributed with the library. Instead, we will focus on the high-level construction of the syntax itself by building and composing combinators with the library.
+Setting up agdarsec's parser takes substantial importing and argument instancing work, mostly concerning monadic constructions. We chose to omit these implementation details from this thesis. Those who are interested can find the code in our repository \cite{home-repo}, or can see similar usages among the examples distributed with the library. Instead, we will focus on the high-level construction of the syntax itself by building and composing combinators with the library.
 
 First, we present our syntax on Code \ref{code:parse-ast}. We have nullary nodes, like the Bool constructors \verb$s-true$, \verb$s-false$ or \verb$s-nil$, which creates the empty list. Unary nodes include the product elimination rules \verb$s-fst$ and \verb$s-snd$, and the sum introduction rules \verb$s-inl$ and \verb$s-inr$. STLC has several binary operators, for example, addition of naturals \verb$_s-+_$, function elimination \verb$_s-$\verb=$=\verb$_$, type former for products \verb$_s-,_$ or the cons operator of lists \verb$_s-∷_$. Ternary nodes include iterators like \verb$s-ite$ (this is the Bool destructor "if then else"), \verb$s-iteℕ$, \verb$s-iteList$ and \verb$s-iteTree$.
 
@@ -680,7 +680,7 @@ check : (Γ : Con) → (A : Ty) → ABT (length Γ) → Maybe (Tm Γ A)
 \label{code:typecheck-signatures}
 \end{listing}
 
-From Code \ref{code:typecheck-infer-triv} to \ref{code:typecheck-check-ann}, we present a non-exhaustive subset of our inference and checking rules. TODO: include one that uses fconv?
+From Code \ref{code:typecheck-infer-triv} to \ref{code:typecheck-check-ann}, we present a non-exhaustive subset of our inference and checking rules.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -1083,7 +1083,7 @@ elaborate code = case just (tokenize code)                     of λ where
 
 We chose to return all intermediate results of our process for the sake of transparency to the user, i.e., all levels of abstractions are automatically available for inspection. Also, even if the whole compilation fails, we still return partial results up until the point of the error for easy debugging.
 
-One questionable aspect of the above code is that \verb$tokenize code$ is wrapped in \verb$just$. It is because of the issue we mentioned in Chapter \ref{sec:lexer}: the lexer provided by agdarsec cannot fail. As a result, \verb$lexical-error$ below is only a placeholder as of writing this paper.
+One questionable aspect of the above code is that \verb$tokenize code$ is wrapped in \verb$just$. It is because of the issue we mentioned in Chapter \ref{sec:lexer}: the lexer provided by agdarsec cannot fail. As a result, \verb$lexical-error$ below is only a placeholder as of writing this thesis.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -1281,7 +1281,7 @@ _ : eval (curry ++ₛ (uncurry ++ₛ add)) ≡ eval add
 
 On Code \ref{code:examples-curry} we show currying and uncurrying, i.e., proofs that \verb$n$-ary functions \verb$(n ∈ ℕ⁺)$ are isomorphic to unary higher-order ones that return \verb$(n-1)$-ary functions. This means that applying \verb$uncurry$ and \verb$curry$ on any curried function gets us the original function, as seen on the example with \verb$add$.
 
-For lists, both type annotations and terms support two syntaxes. Types can be written as \verb$"List T"$ or \verb$"[T]"$ for any type \verb$T$; and terms like \verb$"2 ∷ 1 ∷ 0 ∷ nil"$ or \verb$"[2, 1, 0]"$, i.e., both Agda and Haskell-like forms are valid. We can, of course, create nested lists. A list of type \verb$"List (List ℕ)"$ can be \verb$"(0 ∷ 2 ∷ nil) ∷ (1 ∷ nil) ∷ nil"$, for example. A limitation from our parser is that nested lists are not supported by our Haskell-like syntax as of writing this paper.
+For lists, both type annotations and terms support two syntaxes. Types can be written as \verb$"List T"$ or \verb$"[T]"$ for any type \verb$T$; and terms like \verb$"2 ∷ 1 ∷ 0 ∷ nil"$ or \verb$"[2, 1, 0]"$, i.e., both Agda and Haskell-like forms are valid. We can, of course, create nested lists. A list of type \verb$"List (List ℕ)"$ can be \verb$"(0 ∷ 2 ∷ nil) ∷ (1 ∷ nil) ∷ nil"$, for example. A limitation from our parser is that nested lists are not supported by our Haskell-like syntax as of writing this thesis.
 
 \begin{listing}[H]
 \begin{minted}{agda}
