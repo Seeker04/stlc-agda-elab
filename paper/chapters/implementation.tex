@@ -1,16 +1,16 @@
 \chapter{Implementation}
 \label{ch:Implementation}
 
-First we present a bird's-eye overview of our elaboration stack on Figure \ref{fig:architecture}, then show the process on a concrete example on Figure \ref{fig:example-1}. Subsequent chapters detail the depicted representations and the steps between them.
+First we present a bird's-eye overview of our elaboration and evaluation stacks on Figure \ref{fig:architecture}, then show the process on a concrete example on Figure \ref{fig:example-1}. Subsequent chapters detail the depicted representations and the steps between them.
 
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=1.0\textwidth]{../images/architecture.png}
-	\caption{High-level overview of the elaboration steps}
+	\caption{High-level overview of the elaboration and evaluation steps}
 	\label{fig:architecture}
 \end{figure}
 
-From our seven representations: string and list of tokens are trivial; AST and ABT are simple inductive data types (albeit the latter is indexed by \verb$ℕ$); and Agda terms, whether in normal form or not, are in the metatheoretic domain, which we do not have to deal with. The Well-typed term level, i.e., our object theory, is the only one that bears a more complex definition.
+From our seven representations: string and list of tokens are trivial; AST and ABT are simple inductive data types (albeit the latter is indexed by \verb$ℕ$); and Agda terms, whether in normal form or not, are in the metatheoretic domain, which we do not have to deal with. The well-typed term level, i.e., our object theory, is the only one that bears a more complex definition.
 
 From the six transitions between our levels of abstractions: lexical analysis and parsing are solved in a high-level approach using the agdarsec library; scope checking, type inference and standard model interpretation bear more in-depth explanations; and Agda normalisation is again, not part of our domain.
 
@@ -136,7 +136,7 @@ listch⇒ℕ = step 0 where
 
 Accepting arbitrary strings as variable names is uncommon. We chose this approach, because agdarsec's interface, i.e., the \verb$default$ function, does not support returning an error. It returns \verb$Tok$ and not a type like \verb$Maybe Tok$. We could of course return an "error token", but that would pollute our \verb$Tok$ type, and also, the error would surface during parsing, which would not be elegant. A potential clean solution would be to bring back our self-made tokenizer (that only accepted alphanumeric variable names) and inject that to agdarsec's parsing toolchain. There is support for this, and could be a potential improvement in the future.
 
-The lexer itself is parametrized with the three functions discussed above using the import statement:
+The lexer itself is parametrized with the three functions discussed above using the \verb$import$ statement:
 
 \mint{agda}|open import Text.Lexer keywords breaking default|
 
@@ -470,8 +470,6 @@ lift-abt {m} {n} m≤n (abt-var f) = abt-var (inject≤ {m} {n} f m≤n) where
 
 \begin{listing}[H]
 \begin{minted}{agda}
-≡implies≤ : (n m : ℕ) → n ≡ m → n ≤ m
-
 ≤-max2 : (n m : ℕ) → (n ≤ max n m) ×
                      (m ≤ max n m)
 
@@ -560,6 +558,8 @@ _ = refl
 \label{code:abt-scopecheck-ex}
 \end{listing}
 
+\newpage
+
 \section{Bidirectional type checking} \label{sec:typecheck}
 
 In this chapter, we first give a brief introduction to our well-typed syntax for easier understanding. However, we will discuss our object theory in more detail in the next chapter.
@@ -634,7 +634,6 @@ infer-ty s-⊥    = just Empty
 infer-ty (A s-→ B) with infer-ty A | infer-ty B
 ... | just A' | just B' = just (A' ⇒ B')
 ... | _       | _       = nothing
--- ...
 \end{minted}
 \caption{Mapping syntactic types SType to Ty}
 \label{code:typecheck-infer-ty}
@@ -653,7 +652,6 @@ lookup (Γ ▹ A) (suc n) = proj₁ rest , proj₂ rest [ p ] where
 
 fconv : {Γ : Con}{A B : Ty} → Tm Γ (A ⇒ B) → Tm (Γ ▹ A) B
 fconv f = f [ p ] $ q
-
 \end{minted}
 \caption{Helper functions for type checking}
 \label{code:typecheck-helpers}
@@ -741,8 +739,6 @@ We reject inference of abstractions by returning \verb$nothing$, because we cann
 
 When inferring an application, we first test whether the left-hand side is some function \verb$A ⇒ B$, then we check if the right-hand side is of type \verb$A$. If these hold, we can construct the term for application using \verb$$\verb=$=\verb$$.
 
-We present the mutually recursive nature of \verb$infer$ and \verb$check$ on our list type.
-
 \begin{listing}[H]
 \begin{minted}{agda}
 infer Γ (u abt-∷ v) with infer Γ u
@@ -762,6 +758,8 @@ check Γ A t with infer Γ t
 \caption{Type inference and checking: lists}
 \label{code:typecheck-infercheck-lists}
 \end{listing}
+
+We present the mutually recursive nature of \verb$infer$ and \verb$check$ on our list type.
 
 For determining the type of \verb$u ∷ v$, we first infer the type of the head, \verb$u$, which will be some type \verb$A$. Then we check if the rest of the list, \verb$v$, is of type \verb$List A$. If \verb$v$ is still a non-empty list, then our third case from Code \ref{code:typecheck-infercheck-lists} will run, which simply calls inference on the remainder list. \verb$infer$ and \verb$check$ will call each other, until we reach our base case: the empty list. It is clear from the code attached above, that no matter what type \verb$A$ is in \verb$List A$, we can always construct the term \verb$nil$ for any such type. This is guaranteed by Agda's polymorphic nature as our meta language:
 \mint{agda}|nil : ∀{Γ A} → Tm Γ (List A)|
@@ -939,7 +937,6 @@ Code \ref{code:ot-eq-reasoning} presents an example where we prove that the well
 
 \begin{listing}[H]
 \begin{minted}{agda}
--- "if isZero 1 then 0 else 1+1"
 s = suco
 z = zeroo
 --           0             1+1                    isZero       1        2
@@ -980,6 +977,8 @@ In the previous chapter, we introduced the \textit{syntax}, i.e., \textit{initia
 
 In this chapter, we present a model we call \textit{standard model}. It provides the standard meta-language interpretation of our well-typed terms. In essence, we map our object theoretic concepts to our meta theory, i.e., Agda. We can call this a form of evaluation, because the resulting Agda terms can be normalised by Agda. For example, the standard model interpretation of \verb$iteBool zeroo (suco zeroo) false$ is \verb$if false then 0 else 1$, which Agda normalises to \verb$1$.
 
+We denote \textit{rewriting}, often called \textit{interpretation}, by enclosing our syntactic terms - terms of the initial model, \verb$I$ - in \verb$⟦_⟧$. For technical reasons, we have separate operators for all sorts, e.g., \verb$⟦_⟧T$ for rewriting types, \verb$⟦_⟧C$ for contexts, etc. We use Agda's \verb$REWRITE$ pragma as seen on Code \ref{code:ot-rewriting}.
+
 \begin{listing}[H]
 \begin{minted}{agda}
 ⟦_⟧T : I.Ty → Ty
@@ -996,8 +995,6 @@ In this chapter, we present a model we call \textit{standard model}. It provides
 \caption{Rewriting rules for interpretation}
 \label{code:ot-rewriting}
 \end{listing}
-
-We denote \textit{rewriting}, often called \textit{interpretation}, by enclosing our syntactic terms (terms of the initial model, \verb$I$) in \verb$⟦_⟧$. For technical reasons, we have separate operators for all sorts, e.g., \verb$⟦_⟧T$ for rewriting types, \verb$⟦_⟧C$ for contexts, etc. We use Agda's \verb$REWRITE$ pragma as seen on Code \ref{code:ot-rewriting}.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -1042,7 +1039,7 @@ Most of the standard model is self-evident: we map booleans to Agda's bools, nat
 
 We define auxiliary types in Agda for our slightly more complex constructions, like the inductive \verb$List$ and \verb$Tree$, or the coinductive \verb$Stream$ and \verb$Machine$. We will discuss the semantics of these alongside their examples in Chapter \ref{sec:examples}.
 
-Our elaborator uses the standard model interpretation and Agda's built-in normalisation for evaluating the compiled programs. For insights about \textit{implementing normalisation}, we direct our reader to Ambrus Kaposi's work \cite{typesystems-repo}, which we based our elaborator on. It contains normalisation, albeit only up until a subset of our language, not including function space, for example.
+Our elaborator uses the standard model interpretation and Agda's built-in normalisation for evaluating the compiled programs. For insights about \textit{implementing normalisation}, we direct our reader to Ambrus Kaposi's work \cite{typesystems-repo}, which we based our elaborator on. It contains normalisation, albeit only up until a subset of our language as of writing this thesis, not including function space, for example.
 
 \section{Running the elaborator} \label{sec:running}
 
@@ -1235,7 +1232,13 @@ _ : compile-eval "0 , false" ≡ inj₁ (Nat ×o Bool
 _ : compile-eval "1, trivial, (isZero 1)" ≡ inj₁ (Nat ×o (Unit ×o Bool)
                , ⟨ suco zeroo , ⟨ trivial , iteNat true false (suco zeroo) ⟩ ⟩
                , λ γ* → 1 , triv , ff)
+\end{minted}
+\caption{Example: constructing products}
+\label{code:examples-prod-con}
+\end{listing}
 
+\begin{listing}[H]
+\begin{minted}{agda}
 _ : compile-eval "fst (2,3)" ≡
     inj₁ (Nat , fst ⟨ suco (suco zeroo) , suco (suco (suco zeroo)) ⟩ , λ γ* → 2)
 _ : compile-eval "snd (2,3)" ≡
@@ -1250,8 +1253,8 @@ _ : eval (third ++ₛ "10, 20, 30") ≡ inj₁ (Nat , (λ γ* → 30))
 _ : eval (third ++ₛ "5+5, 42, (if (isZero 0) then (6+2) else 0)") ≡
                                     inj₁ (Nat , (λ γ* → 8))
 \end{minted}
-\caption{Example: products}
-\label{code:examples-prod}
+\caption{Example: destructing products}
+\label{code:examples-prod-des}
 \end{listing}
 
 We can use products to construct pairs, triples or tuples of arbitrary arity by chaining the \verb$_,_$ constructor. They can be destructed with the \verb$fst$ and \verb$snd$ elimination rules or a proper chain of them like in our \verb$third$ function's implementation.

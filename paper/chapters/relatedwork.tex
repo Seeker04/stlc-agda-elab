@@ -21,13 +21,15 @@ Agda standard library \cite{The_Agda_Community_Agda_Standard_Library_2023} is a 
 
 \noindent\textbf{agdarsec}
 
-Agdarsec \cite{allais2018agdarsec} plays a crucial role in our toolchain. It is a total parser combinator library written in Agda. Parser combinators give us a high level interface for building complex parsers by composing simpler primitives. Totality means that by the definition of its type, we cannot write non-terminating parsers, i.e., Agda's termination checker would not accept such constructions. In order to circumvent this, the library builds fixpoints by using a form of guarded recursion and sized types. This gives us strong guarantees: non-advancing parsers or problematic left recursive grammar rules are simply not type correct in this framework. Veltri and von Weide \cite{veltri2019guarded} not only discuss guarded recursion, sized types and their relation, but they also work in Agda on an object language similar to ours, e.g., their terms, substitution calculus, quotients are all similar.\\
+Agdarsec \cite{allais2018agdarsec} plays a crucial role in our toolchain. It is a total parser combinator library written in Agda. Parser combinators give us a high level interface for building complex parsers by composing simpler primitives. Totality means that by the definition of its type, we cannot write non-terminating parsers, i.e., Agda's termination checker would not accept such constructions. In order to circumvent this, the library builds fixpoints by using a form of guarded recursion and sized types. This gives us strong guarantees: non-advancing parsers or problematic left recursive grammar rules are simply not type correct in this framework.
+
+Veltri and von Weide \cite{veltri2019guarded} not only discuss guarded recursion, sized types and their relation, but they also work in Agda on an object language similar to ours, e.g., their terms, substitution calculus, quotients are all similar.\\
 
 \noindent\textbf{Type systems formalisation}
 
 The formalisation we use as our object theory was written by Ambrus Kaposi as course notes for the Type systems lecture at ELTE-IK \cite{typesystems-repo}. We took his \verb$STT$, \verb$Fin$, \verb$Ind$ and \verb$Coind$ languages - standing for \textit{Simple Type Theory}, \textit{finite}, \textit{inductive} and \textit{coinductive} types, respectively - and merged them into a single model we call \verb$STLC$, i.e., Simply Typed Lambda Calculus.
 
-Our extension to his work, which is also the uniqueness of our study, is the elaboration toolchain, discussed at \cite{godelTalk}, that we will present in greater detail.
+Our extension to his work, which is also the uniqueness of our study, is the elaboration toolchain, mentioned at \cite{godelTalk}, that we will present in greater detail.
 
 Note that, while our language contains some less common constructions - mostly for demonstration purposes - like trees and streams, these are still usually considered simple types. We do not support dependent or polymorphic types or even full recursion (which would require a fixpoint combinator), but our formalisation could be extended in the future with some of these concepts.
 

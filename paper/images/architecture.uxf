@@ -19,5 +19,5 @@ and checking</panel_attributes><additional_attributes>10;20;140;20</additional_a
 Standard model
 interpretation</panel_attributes><additional_attributes>10;20;190;20</additional_attributes></element><element><id>Relation</id><coordinates><x>220</x><y>480</y><w>140</w><h>90</h></coordinates><panel_attributes>lt=-&gt;
 Agda normalisation</panel_attributes><additional_attributes>10;10;10;70</additional_attributes></element><element><id>UMLClass</id><coordinates><x>460</x><y>300</y><w>440</w><h>220</h></coordinates><panel_attributes>lt=.
-Compilation</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>150</x><y>420</y><w>290</w><h>190</h></coordinates><panel_attributes>lt=.
+Elaboration</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>150</x><y>420</y><w>290</w><h>190</h></coordinates><panel_attributes>lt=.
 Evaluation</panel_attributes><additional_attributes></additional_attributes></element></diagram>

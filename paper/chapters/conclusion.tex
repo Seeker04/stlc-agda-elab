@@ -3,9 +3,11 @@
 
 \section{Results}
 
-This thesis has introduced readers to the formalisation of a small language based on simply typed \verb$λ$-calculus. We guided them through each elaboration step of the language, going from source code to well-typed terms and interpretation results. The steps include lexing, parsing, scope checking, type checking and a meta theoretic interpretation that serves as a form of semantical evaluation. We presented algebraic definitions and total conversions between them, formalised in Agda for a solution that is correct by construction. We picked conventional and well-known syntactic elements for both the base STLC constructions and its included extensions.
+This thesis has introduced readers to the formalisation of a small language based on simply typed \verb$λ$-calculus. We guided them through each elaboration step of the language, going from source code to syntax trees and well-typed terms. The steps include lexing, parsing, scope checking and type checking. We presented algebraic definitions and total conversions between them, formalised in Agda for a solution that is correct by construction. We picked conventional and well-known syntactic elements for both the base STLC constructions and its extensions. We also included a meta theoretic interpretation that serves as a form of semantical evaluation.
 
-This study also explains some inductive types like lists and trees, formal definitions for their iteration, as well as implementations of some standard functions on them. We also briefly touched upon coinductive types, along their introduction and elimination rules through our \verb$Stream$ and \verb$Machine$ types.
+The novelty and main value of our work is the elaboration stack presented in Chapters \ref{sec:lexer} to \ref{sec:typecheck}. It serves both as educational material, as well as techinal and demonstrational extension for the underlying formalisation \cite{typesystems-repo}.
+
+This study also explains some inductive types like lists and trees, formal definitions for their iteration, as well as implementations of standard algorithms on them. We also briefly touched upon some coinductive types, along their introduction and elimination rules through the \verb$Stream$ and \verb$Machine$ examples.
 
 Our framework provides an easy to use interface consisting of a small set of high-level functions for users to test and experiment on STLC terms. We report errors encountered on various levels of the elaboration stack, e.g., syntax errors, scope errors and type errors.
 

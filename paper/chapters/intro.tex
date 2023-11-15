@@ -5,15 +5,15 @@
 
 Our goal was to formalise an elaborator using Agda that presents all steps of describing a simple language in a mathematically rigorous, yet practical and easy to run framework. Elaboration means that we refine the concept of the language from broader ideas to stricter ones, while moving from more concrete representations towards more abstract ones.
 
-The language - which we will often refer to as our \textit{object language}, \textit{object theory} or \textit{well-typed syntax with quotients} - is based on simply typed lambda calculus (STLC) à la Church and à la Curry. Our formalisation stands closer to Curry's system. It has function space, i.e., abstraction and application, and a few extensions, like finite types: booleans, products and sums; inductive types: naturals, lists, trees; and coinductive types like streams and simple state machines.
+The language - which we will often refer to as our \textit{object language}, \textit{object \begin{hyphenrules}{nohyphenation}theory\end{hyphenrules}} or \textit{well-typed syntax with quotients} - is based on simply typed lambda calculus (STLC) à la Church and à la Curry. The description stands closer to Curry's system. It has function space, i.e., abstraction and application, and a few extensions, like finite types: booleans, products and sums; inductive types: naturals, lists, trees; and coinductive types like streams and simple state machines.
 
-The elaboration consists of lexical analysis, parsing, scope checking, bidirectional type checking (we refer to these as \textit{compilation steps}); as well as standard model interpretation into our meta language and normalisation by Agda (we call these the \textit{evaluation steps}).
+The novelty of our study is the elaboration stack that we implemented as an extension to the pre-existing formalisation \cite{typesystems-repo} of the language. The elaboration consists of lexical analysis, parsing, scope checking and bidirectional type checking. We also refer to these as \textit{compilation steps}. In addition, we have a standard model interpretation into our meta language and normalisation done by Agda. We call these the \textit{evaluation steps}.
 
 By rigorousness, we mean that our code is correct by construction in multiple aspects. Agda - our \textit{meta theory} or \textit{metatheoretic language} - is a purely functional and total language, so we cannot get unwanted side effects, unhandled cases, runtime exceptions, or even non-terminating computations. The latter two could be potential sources of issues if we used Haskell, for example. Another aspect is that our representations are algebraic theories giving us strong guarantees. For example, our abstract binding trees cannot be badly scoped, or our well-typed terms cannot be badly typed by the very definitions of these constructs. Moreover, the theorem proving nature of Agda also helps us with formalising and proving statements about our language, e.g., program equivalence can be verified.
 
 Ease of use and transparency comes in the form of our top-level functions: \verb$elaborate$ returns each intermediate steps leading up to the final compilation and evaluation results, or until an error occurs, e.g., syntax error, scope error, etc. This provides the user deeper insight into the abstract representations and reasons of potential errors. We can also run \verb$compile$ or \verb$eval$ when only caring about the compilation or evaluation results, or their \verb$compileM$ and \verb$evalM$ versions when a Maybe monadic return value is desired.
 
-Here, on Code \ref{code:intro-examples} we present a few small examples for giving the reader a quick taste of our language's syntax and our elaborator's capabilities. We omit all the \verb$_ = refl$ proof lines for brevity.
+On Code \ref{code:intro-examples} we present a few small examples for giving the reader a quick taste of our language's syntax and our elaborator's capabilities. We omit all the \verb$_ = refl$ proof lines for brevity.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -35,19 +35,12 @@ _ : eval (plus ++ₛ "3" ++ₛ "8")             ≡ inj₁ (Nat , λ γ* → 11)
 _ : eval (multiply ++ₛ "6" ++ₛ "20")        ≡ inj₁ (Nat , λ γ* → 120)
 _ : eval (3-times ++ₛ +1 ++ₛ "10")          ≡ inj₁ (Nat , λ γ* → 13)
 _ : eval (∘ ++ₛ double ++ₛ triple ++ₛ "10") ≡ inj₁ (Nat , λ γ* → 60)
-
-sum = "(λ xs. iteList 0 (λ x y. x + y) xs) : [ℕ] → ℕ"
-map = "(λ f xs. iteList (nil : [ℕ]) (λ a as. (f a) ∷ as) xs) : (ℕ → ℕ) → [ℕ] → [ℕ]"
-
-_ : eval (sum ++ₛ "[]")             ≡ inj₁ (Nat , λ γ* → 0)
-_ : eval (sum ++ₛ "[10, 7, 20, 1]") ≡ inj₁ (Nat , λ γ* → 38)
-_ : eval (map ++ₛ double ++ₛ "[3,0,11,23]") ≡ inj₁ (Ty.List Nat ,
-                                              λ γ* → 6 ∷ (0 ∷ (22 ∷ (46 ∷ []))))
-_ : eval (map ++ₛ double ++ₛ "[]") ≡ inj₁ (Ty.List Nat , λ γ* → [])
 \end{minted}
 \caption{Introductory examples of compilation and evaluation results}
 \label{code:intro-examples}
 \end{listing}
+
+\newpage
 
 \section{Glossary}
 
