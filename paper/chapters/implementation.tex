@@ -12,7 +12,7 @@ First we present a bird's-eye overview of our elaboration and evaluation stacks 
 
 From our seven representations: string and list of tokens are trivial; AST and ABT are simple inductive data types (albeit the latter is indexed by \verb$ℕ$); and Agda terms, whether in normal form or not, are in the metatheoretic domain, which we do not have to deal with. The well-typed term level, i.e., our object theory, is the only one that bears a more complex definition.
 
-From the six transitions between our levels of abstractions: lexical analysis and parsing are solved in a high-level approach using the agdarsec library; scope checking, type inference and standard model interpretation bear more in-depth explanations; and Agda normalisation is again, not part of our domain.
+From the six transitions between our levels of abstractions: lexical analysis and parsing are solved in a high-level approach using the agdarsec library; scope checking, type inference and standard model interpretation bear more in-depth explanations; and Agda normalisation, as mentioned earlier, is not part of our domain.
 
 We give prefixes to our constructors on all levels for clarity, e.g., \verb$t-true$ for the token, \verb$s-true$ for the AST (syntactic) term, \verb$p-true$ for its parser, and \verb$abt-true$ for the ABT term. Well-typed terms have no prefixes, e.g., \verb$true$. We also often use the "o" suffix for distinguishing between Agda terms and our own, e.g. in \verb$zeroo$ and \verb$suco$.
 
@@ -25,7 +25,7 @@ We give prefixes to our constructors on all levels for clarity, e.g., \verb$t-tr
 
 \section{Lexical analysis} \label{sec:lexer}
 
-First, it is worth mentioning that we initially implemented our own lexer, which was functionally the same as the final implementation relying on agdarsec. It was a simple algorithm: read the input by characters; accumulate them to a word until a whitespace or separator is read; if it is a valid token, put it into a list, otherwise return an error; repeat the steps until end of input.
+First of all, it is worth mentioning that we initially implemented our own lexer which was functionally the same as the final implementation relying on agdarsec. It was a simple algorithm: read the input by characters; accumulate them to a word until a whitespace or separator is read; if it is a valid token put it into a list, otherwise return an error; repeat the steps until end of input.
 
 Since agdarsec already ships with a high-level interface for lexical analysis, we chose to abstract this step similarly to parsing.
 
@@ -101,7 +101,7 @@ breaking c = case c of λ where
 \label{code:lex-breaking}
 \end{listing}
 
-As expected, all whitespace characters act as valid separators. Additionally, our tokens which are symbols, i.e., the ones that are not alphanumeric, are also accepted as separators. For example, \verb$"λx.x+10"$ is lexically valid. On Code \ref{code:lex-breaking} we can see that \verb$breaking$ takes a character and returns a pair. The first field indicates if it is a separator and the second optionally contains a \verb$Tok$ depending on whether it is also a token.
+As expected, all whitespace characters act as valid separators. Additionally, our tokens which are symbols, i.e., the ones that are not alphanumeric, are also accepted as separators. For example, \verb$"λx.x+10"$ is lexically valid. On Code \ref{code:lex-breaking}, we can see that \verb$breaking$ takes a character and returns a pair. The first field indicates if it is a separator and the second optionally contains a \verb$Tok$ depending on whether it is also a token.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -134,7 +134,7 @@ listch⇒ℕ = step 0 where
 \label{code:lex-reading-nat}
 \end{listing}
 
-Accepting arbitrary strings as variable names is uncommon. We chose this approach, because agdarsec's interface, i.e., the \verb$default$ function, does not support returning an error. It returns \verb$Tok$ and not a type like \verb$Maybe Tok$. We could of course return an "error token", but that would pollute our \verb$Tok$ type, and also, the error would surface during parsing, which would not be elegant. A potential clean solution would be to bring back our self-made tokenizer (that only accepted alphanumeric variable names) and inject that to agdarsec's parsing toolchain. There is support for this, and could be a potential improvement in the future.
+Accepting arbitrary strings as variable names is uncommon. We chose this approach because agdarsec's interface, i.e., the \verb$default$ function, does not support returning an error. It returns \verb$Tok$ and not a type like \verb$Maybe Tok$. Of course, we could return an "error token", but that would pollute our \verb$Tok$ type, also the error would surface during parsing which would not be elegant. A potential clean solution would be to bring back our self-made tokenizer (that only accepted alphanumeric variable names) and inject that to agdarsec's parsing toolchain. This method is supported by the library and could be a potential improvement in the future.
 
 The lexer itself is parametrized with the three functions discussed above using the \verb$import$ statement:
 
@@ -142,11 +142,11 @@ The lexer itself is parametrized with the three functions discussed above using 
 
 \section{Parsing}
 
-Like with lexical analysis, our first approach was to implement our own parsing algorithm. This meant a recursive function that simulated a state machine. There were two problems with this approach. First, Agda's termination checker rejected recursive calls at binary and ternary operators, with no trivial way around it, i.e., without implementing some form of fixpoint combinator. Second, our implementation could only handle the Polish notation of STLC, i.e., operators had to be written in prefix order: \verb$+ 1 + 2 3$ instead of \verb$1 + 2 + 3$. Implementing infix syntax for operators like \verb$_+_$, function application with no symbol required, and support for parenthesis proved to be far from trivial. In essence, we would have had to implement a parser combinator library of our own. In order to avoid reinventing the wheel, we opted to use agdarsec for building our AST.
+Just as in lexical analysis, our first approach was to implement our own parsing algorithm. This meant a recursive function that simulated a state machine. There were two problems with this approach. Firstly, Agda's termination checker rejected recursive calls at binary and ternary operators with no trivial way around, i.e., without implementing some form of fixpoint combinator. Secondly, our implementation could only handle the Polish notation of STLC, i.e., operators had to be written in prefix order: \verb$+ 1 + 2 3$ instead of \verb$1 + 2 + 3$. Implementing infix syntax for operators like \verb$_+_$, function application with no symbol required, and support for parenthesis proved to be far from trivial. In essence, we would have had to implement a parser combinator library of our own. In order to avoid reinventing the wheel, we opted to use agdarsec to build our AST.
 
-Setting up agdarsec's parser takes substantial importing and argument instancing work, mostly concerning monadic constructions. We chose to omit these implementation details from this thesis. Those who are interested can find the code in our repository \cite{home-repo}, or can see similar usages among the examples distributed with the library. Instead, we will focus on the high-level construction of the syntax itself by building and composing combinators with the library.
+Setting up agdarsec's parser takes substantial importing and argument instancing work, mostly concerning monadic constructions. We chose to omit these implementation details from this thesis. Those who are interested can find the code in our repository \cite{home-repo}, or can see similar use cases among the examples distributed with the library. Instead, we will focus on the high-level construction of the syntax itself by building and composing combinators with the library.
 
-First, we present our syntax on Code \ref{code:parse-ast}. We have nullary nodes, like the Bool constructors \verb$s-true$, \verb$s-false$ or \verb$s-nil$, which creates the empty list. Unary nodes include the product elimination rules \verb$s-fst$ and \verb$s-snd$, and the sum introduction rules \verb$s-inl$ and \verb$s-inr$. STLC has several binary operators, for example, addition of naturals \verb$_s-+_$, function elimination \verb$_s-$\verb=$=\verb$_$, type former for products \verb$_s-,_$ or the cons operator of lists \verb$_s-∷_$. Ternary nodes include iterators like \verb$s-ite$ (this is the Bool destructor "if then else"), \verb$s-iteℕ$, \verb$s-iteList$ and \verb$s-iteTree$.
+Firstly, we present our syntax on Code \ref{code:parse-ast}. We have nullary nodes like the Bool constructors \verb$s-true$, \verb$s-false$ or \verb$s-nil$ which creates the empty list. Unary nodes include the product elimination rules \verb$s-fst$ and \verb$s-snd$, and the sum introduction rules \verb$s-inl$ and \verb$s-inr$. STLC has several binary operators, for example, addition of naturals \verb$_s-+_$, function elimination \verb$_s-$\verb=$=\verb$_$, type former for products \verb$_s-,_$ or the cons operator of lists \verb$_s-∷_$. Ternary nodes include iterators like \verb$s-ite$ (this is the Bool destructor "if then else"), \verb$s-iteℕ$, \verb$s-iteList$ and \verb$s-iteTree$.
 
 Code \ref{code:parse-stype} depicts the syntax we use for our type annotations, which we will need to clarify types of terms like the empty list \verb$"nil"$ or identity function \verb$"λx.x"$. Their code might look like \verb$"nil : [ℕ]"$ and \verb$"(λx.x) : ℕ → ℕ"$, respectively.
 
@@ -216,7 +216,7 @@ data SType : Set where
 \label{code:parse-stype}
 \end{listing}
 
-At this level \verb$s-λ$ does not mean Church's usual lambda, but an abstract node that stores a list of variable names it binds, since we support the compact notation \verb$"λ x y z. x+y+z"$. We will unroll this to properly nested lambdas when introducing De Bruijn indices \cite{de1972lambda} on our ABT level. Analogue to this, \verb$s-var$ stores the parsed variable name in its index, which will be turned to a De Bruijn index later.
+At this level \verb$s-λ$ does not mean Church's usual lambda, but an abstract node that stores a list of variable names it binds, since we support the compact notation \verb$"λ x y z. x+y+z"$. We will unroll this to properly nested lambdas when introducing De Bruijn indices \cite{de1972lambda} on our ABT level. Analogue to this, \verb$s-var$ stores the parsed variable name in its index which will be turned to a De Bruijn index later.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -236,7 +236,7 @@ p-name = maybeTok λ where (_ , t-var s) → just s; _ → nothing
 \label{code:parse-basic-parsers}
 \end{listing}
 
-\verb$p-tok$ parses an exact token by using \verb$eq-tok$ introduced in the previous chapter. \verb$p-parens$ parses an opening parenthesis, followed by a recursive parsing of an arbitrary term, and then by a closing parenthesis. We always call the parameter passed for recursive parsing \verb$rec$, which has type \verb$□ Parser P A$. Here, \verb$□$ means the type is "boxed" or "guarded" as in \textit{guarded recursion} \cite{veltri2019guarded}; \verb$P$ stands for the parameters of the parsing module; and \verb$A$ is an arbitrary type, so \verb$p-parens$ is polymorphic and can be used to parse any type between parentheses. \verb$p-name$ can parse arbitrary strings, which we use in \verb$p-var$ and \verb$p-λ$.
+\verb$p-tok$ parses an exact token by using \verb$eq-tok$ introduced in the previous chapter. \verb$p-parens$ parses an opening parenthesis, followed by a recursive parsing of an arbitrary term, and then by a closing parenthesis. We always call the parameter passed for recursive parsing \verb$rec$ which has type \verb$□ Parser P A$. Here \verb$□$ means the type is "boxed" or "guarded" as in \textit{guarded recursion} \cite{veltri2019guarded}; \verb$P$ stands for the parameters of the parsing module; and \verb$A$ is an arbitrary type, so \verb$p-parens$ is polymorphic and can be used to parse any type between parentheses. \verb$p-name$ can parse arbitrary strings, which we use in \verb$p-var$ and \verb$p-λ$.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -265,7 +265,7 @@ p-type = fix _ $ λ rec →
 \label{code:parse-p-type}
 \end{listing}
 
-We use agdarsec's fixpoint combinator \verb$fix$ for recursively parsing the syntax of type annotations as seen on Code \ref{code:parse-p-type}. The parsing of nullary and unary nodes are trivial, though note the required use of the \verb$box$ operator for the type correctness of the total parsing. For binary nodes \verb$p-→$, \verb$p-+$ and \verb$p-×$, we use the library's \verb$chainr1$ combinator, which parses right associative chains of operators. The order of embedding among them determines the precedence between these operators. Also, these chains can consist of single elements, and as a result, \verb$"ℕ"$ is parsed as a single-element \verb$→$ chain, of a single-element \verb$+$ chain of a single-element \verb$×$ chain of an atom, which gets accepted by \verb$p-nat$.
+We use agdarsec's fixpoint combinator \verb$fix$ for recursively parsing the syntax of type annotations as seen on Code \ref{code:parse-p-type}. The parsing of nullary and unary nodes are trivial, though note the required use of the \verb$box$ operator for the type correctness of the total parsing. For binary nodes \verb$p-→$, \verb$p-+$ and \verb$p-×$, we use the library's \verb$chainr1$ combinator which parses right associative chains of operators. The order of embedding among them determines the precedence between these operators. Also, these chains can consist of single elements, and as a result, \verb$"ℕ"$ is parsed as a single-element \verb$→$ chain, of a single-element \verb$+$ chain of a single-element \verb$×$ chain of an atom, which gets accepted by \verb$p-nat$.
 
 We guarantee guardedness by wrapping the recursive call in parentheses, i.e., the \verb$p-parens rec$ case in \verb$p-atom$. This introduces requirement for some parentheses in certain situations. However, this lifts some ambiguity, for example, in \verb$"List ℕ → 𝕃"$ between the choices of \verb$"List (ℕ → 𝕃)"$ and \verb$"(List ℕ) → 𝕃"$.
 
@@ -298,7 +298,7 @@ p-ann rec = s-ann <$> p-subexp rec <*> box (p-tok t-: &> box p-type)
 \label{code:parse-some-parsers}
 \end{listing}
 
-There is no combinator in agdarsec that would allow us writing a parser that accepts an empty input, or an empty list to be more precise, since non-advancing parsers would violate totality. This aligns with our need for \verb$s-λ$, since we expect at least one variable name to bind in a lambda expression. For this, we use the \verb$list⁺$ combinator. Converting it back to a simple list with \verb$toList$ is just an implementation trick, a liberty we took, so we could more easily pattern match later in the scope checking step.
+There is no combinator in agdarsec that would allow us writing a parser that accepts an empty input, or an empty list to be more precise, since non-advancing parsers would violate totality. This aligns with our need for \verb$s-λ$, since we expect at least one variable name to bind in a lambda expression. For this we use the \verb$list⁺$ combinator. Converting it back to a simple list with \verb$toList$ is just an implementation trick, a liberty we took, so we could more easily pattern match later in the scope checking step.
 
 The case of \verb$p-∷$, \verb$p-,$ and \verb$p-+$ is similar to the binary nodes presented in our \verb$p-type$ example.
 
@@ -348,7 +348,7 @@ p-exp = fix _ $ λ rec →
 \label{code:parse-p-exp}
 \end{listing}
 
-\verb$p-subexp$ has all nullary nodes listed, because they don't need to be guarded by parentheses. \verb$p-leaf$ is included too, since it is guarded in itself, because of its unique prefix, e.g., leaves of \verb$Tree ℕ$ look like \verb$"<42>"$. \verb$p-exp$ is the top-level parser of STLC.
+\verb$p-subexp$ has all nullary nodes listed, because they do not need to be guarded by parentheses. \verb$p-leaf$ is included too, since it is guarded in itself, because of its unique prefix, e.g., leaves of \verb$Tree ℕ$ look like \verb$"<42>"$. \verb$p-exp$ is the top-level parser of STLC.
 
 Omitting the cumbersome work of argument instancing, we show the final parsing algorithm on Code \ref{code:parse-algo}.
 
@@ -375,7 +375,7 @@ parse = parse-exp
 \label{code:parse-algo}
 \end{listing}
 
-Without going too much into detail, we can see that our function starts from a string (the source code) and a parser (\verb$p-exp$ in our case). It runs the injected tokenizer, for which we use the one provided by agdarsec, parametrized with our three functions discussed in the previous chapter. It is also clear that the parsing can fail, which is indicated by returning \verb$nothing$. The need for the \verb$n≤1+n$ proof suggests that the internal code of agdarsec uses the fact that parsing always consumes some non-zero amount of characters from the input, thus reducing the sized type used.
+Without going too much into detail, we can see that our function starts from a string (the source code) and a parser (\verb$p-exp$ in our case). It runs the injected tokenizer for which we use the one provided by agdarsec, parametrized with our three functions discussed in the previous chapter. It is also clear that the parsing can fail which is indicated by returning \verb$nothing$. The need for the \verb$n≤1+n$ proof suggests that the internal code of agdarsec uses the fact that parsing always consumes some non-zero amount of characters from the input, thus reducing the sized type used.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -445,7 +445,7 @@ data ABT (n : ℕ) : Set where
 
 The most apparent difference between our AST and ABT definitions is that the latter is indexed by \verb$ℕ$. This index indicates the number of free variables in the expression, i.e., the size of context the corresponding typed term needs.
 
-Another notable difference is in \verb$abt-λ$. It no longer stores the list of variable names obtained from the source code. Instead, we unroll these shorthand lambdas to separate constructors, which we will treat as binders that use De Bruijn indices \cite{de1972lambda}. For example, \verb$s-λ ("x" ∷ "y" ∷ []) (s-var "x" s-+ s-var "y")$ is turned into \verb$abt-λ (abt-λ (abt-var 1 abt-+ abt-var 0))$. Note that the first variable, \verb$x$, got the index one, and \verb$y$ got index zero. This is because De Bruijn indices indicate the \textit{distance} from the represented variable's binder in the tree.
+Another notable difference is in \verb$abt-λ$. It no longer stores the list of variable names obtained from the source code. Instead, we unroll these shorthand lambdas to separate constructors which we will treat as binders that use De Bruijn indices \cite{de1972lambda}. For example, \verb$s-λ ("x" ∷ "y" ∷ []) (s-var "x" s-+ s-var "y")$ is turned into \verb$abt-λ (abt-λ (abt-var 1 abt-+ abt-var 0))$. Note that the first variable \verb$x$ got the index one, and \verb$y$ got index zero. This is because De Bruijn indices indicate the \textit{distance} from the represented variable's binder in the tree.
 
 Naturally, our \verb$abt-var$ node is also indexed by natural numbers instead of strings. To be more rigorous, we chose to use \verb$Fin n$ (set of n elements, i.e., subset of naturals from 0 to n-1) in our definition \verb$abt-var : Fin n → ABT n$, as can be seen on Code \ref{code:abt-def}. This ensures that we cannot create an ABT which has a variable reference that is out of bounds, i.e., one that uses an index not present in its context.
 
@@ -525,9 +525,9 @@ scopeinfer = sinfer [] where
 \label{code:abt-scopeinfer}
 \end{listing}
 
-\verb$scopeinfer$ takes an \verb$AST$, then if it is well-scoped, it returns a dependent pair: some natural \verb$n$ and an \verb$ABT n$, otherwise it returns \verb$nothing$. Basically, what happens is that we decorate our syntax tree with context size indices. We use \verb$sinfer$ as a helper function to iterate over the tree. It accumulates the bound variable names in its first argument from the \verb$s-λ$ nodes. Then, at \verb$s-var$ nodes we look up the variable from the list: if not found, we return with error; otherwise we use the resulting list index as the De Bruijn index. Note that the \verb$suc$ for the ABT index is needed here only because \verb$lookup$ indexes from zero, i.e., a De Bruijn index 0 means that we need a context of at least size one.
+\verb$scopeinfer$ takes an \verb$AST$, then if it is well-scoped, it returns a dependent pair: some natural \verb$n$ and an \verb$ABT n$, otherwise it returns \verb$nothing$. Basically what happens is that we decorate our syntax tree with context size indices. We use \verb$sinfer$ as a helper function to iterate over the tree. It accumulates the bound variable names in its first argument from the \verb$s-λ$ nodes. Then, at \verb$s-var$ nodes we look up the variable from the list: if not found, we return with error; otherwise we use the resulting list index as the De Bruijn index. Note that the \verb$suc$ for the ABT index is needed here only because \verb$lookup$ indexes from zero, i.e., a De Bruijn index 0 means that we need a context of at least size one.
 
-For nodes with arity two or more, such as \verb$_s-$\verb=$=\verb$_$ and \verb$s-ite$ on Code \ref{code:abt-scopeinfer}: we recursively infer the scope of all subterms; choose the biggest scope size among them; then lift all operands to that scope for constructing the ABT node. To achieve this, we use our lemmas \verb$≤-max2$ and \verb$≤-max3$, which state that the maximum of two or three numbers is always larger than or equal to the individual numbers.
+For nodes with arity two or more, such as \verb$_s-$\verb=$=\verb$_$ and \verb$s-ite$ on Code \ref{code:abt-scopeinfer}, we recursively infer the scope of all subterms; choose the biggest scope size among them; then lift all operands to that scope for constructing the ABT node. To achieve this, we use our lemmas \verb$≤-max2$ and \verb$≤-max3$ which state that the maximum of two or three numbers is always larger than or equal to the individual numbers.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -540,7 +540,7 @@ scopecheck ast with scopeinfer ast
 \label{code:abt-scopecheck}
 \end{listing}
 
-The module's top-level function \verb$scopecheck$ simply runs the scope inference and checks whether we get a closed term, i.e., a binding tree with index zero. This is to ensure that there are no free variables in the term, or in other words: it is well-scoped. Note that, again, we encode a strong requirement in our type: the scope checking cannot return a badly scoped tree by definition.
+The module's top-level function \verb$scopecheck$ simply runs the scope inference and checks whether we get a closed term, i.e., a binding tree with index zero. This is to ensure that there are no free variables in the term, or in other words: it is well-scoped. Note that, again we encode a strong requirement in our type: the scope checking cannot return a badly scoped tree by definition.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -562,7 +562,7 @@ _ = refl
 
 \section{Bidirectional type checking} \label{sec:typecheck}
 
-In this chapter, we first give a brief introduction to our well-typed syntax for easier understanding. However, we will discuss our object theory in more detail in the next chapter.
+In this chapter we first give a brief introduction to our well-typed syntax for easier understanding. However, we will discuss our object theory in more detail in the next chapter.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -590,11 +590,11 @@ Tm : Con → Ty → Set
 \label{code:typecheck-ty}
 \end{listing}
 
-Not surprisingly, \verb$Ty$ has the exact same definition as our syntactic types, \verb$SType$, as visible when comparing Code \ref{code:parse-stype} with \ref{code:typecheck-ty}. Contexts, \verb$Con$, are simply a list of types, where \verb$◇$ corresponds to nil, and \verb$_▹_$ is similar to the cons constructor, takes a prefix list and a type to form a new context. So \verb$◇$ represents the empty context, and \verb$◇ ▹ Nat ▹ Bool$ stands for the context that has a \verb$Bool$ and a \verb$Nat$ variable in De Bruijn indices zero and one, respectively. The indices are inverted, because when we append a new variable with a \verb$λ$ introduction, it becomes De Bruijn index zero.
+\verb$Ty$ has the exact same definition as our syntactic types \verb$SType$ as visible when comparing Code \ref{code:typecheck-ty} with \ref{code:parse-stype}. Contexts (\verb$Con$) are simply a list of types, where \verb$◇$ corresponds to nil, and \verb$_▹_$ is similar to the cons constructor, takes a prefix list and a type to form a new context. So \verb$◇$ represents the empty context, and \verb$◇ ▹ Nat ▹ Bool$ stands for the context that has a \verb$Bool$ and a \verb$Nat$ variable in De Bruijn indices zero and one, respectively. The indices are inverted, because when we append a new variable with a \verb$λ$ introduction it becomes De Bruijn index zero.
 
-Terms, \verb$Tm$, are indexed by their contexts and their types. Later we will see that we cannot construct arbitrary terms from arbitrary contexts. For example, the term \verb$q$, which stands for the "last bound variable", cannot be constructed in the empty context.
+Terms (\verb$Tm$) are indexed by their contexts and their types. Later we will see that we cannot construct arbitrary terms from arbitrary contexts. For example, the term \verb$q$, which stands for the "last bound variable", cannot be constructed in the empty context.
 
-Codes \ref{code:typecheck-ty-eq}, \ref{code:typecheck-infer-ty} and \ref{code:typecheck-helpers} show portions from code used for type checking: decidable equality over \verb$Ty$; mapping from the syntactic \verb$SType$ to \verb$Ty$; and a few additional helper functions, respectively.
+Codes \ref{code:typecheck-ty-eq}, \ref{code:typecheck-infer-ty} and \ref{code:typecheck-helpers} show portions from the code used for type checking: decidable equality over \verb$Ty$; mapping from the syntactic \verb$SType$ to \verb$Ty$; and a few additional helper functions, respectively.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -657,17 +657,17 @@ fconv f = f [ p ] $ q
 \label{code:typecheck-helpers}
 \end{listing}
 
-\verb$lookup$ is a safe function, due to the index argument's type \verb$Fin (length Γ)$, that searches the nth type from a \verb$Con$. It also constructs the term that extracts said nth variable from the context. For this, it builds a chain of \verb$[ p ]$ substitutions with length equal to the queried index. Informally, all \verb$[ p ]$ substitutions "peel off" the last bound variable from the list. Finally, the function puts a \verb$q$ to the term, that extracts the last variable from the truncated list. For example, if we run \verb$lookup Γ 3$, then we get a pair like: \verb$A , q [ p ] [ p ] [ p ]$, where \verb$A$ is the type of the variable at De Bruijn index three in \verb$Γ$. We have a shorthand notation for the previous term: \verb$q [ p ⊚ p ⊚ p ]$.
+\verb$lookup$ is a safe function, due to the index argument's type \verb$Fin (length Γ)$ that searches the nth type from a \verb$Con$. It also constructs the term that extracts said nth variable from the context. For this, it builds a chain of \verb$[ p ]$ substitutions with length equal to the queried index. Informally, all \verb$[ p ]$ substitutions "peel off" the last bound variable from the list. Finally, the function puts a \verb$q$ to the term, that extracts the last variable from the truncated list. For example, if we run \verb$lookup Γ 3$, then we get a pair like: \verb$A , q [ p ] [ p ] [ p ]$, where \verb$A$ is the type of the variable at De Bruijn index three in \verb$Γ$. We have a shorthand notation for the previous term: \verb$q [ p ⊚ p ⊚ p ]$.
 
 \verb$fconv$ is interesting when we consider our introduction rule for abstraction:
 \mint{agda}|lam : ∀{Γ A B} → Tm (Γ ▹ A) B → Tm Γ (A ⇒ B)|
-\noindent{It means that when we can explain a term of type \verb$B$ using a context that is some \verb$Γ$ plus a variable \verb$A$, we can also always explain a function in context \verb$Γ$ that goes from \verb$A$ to \verb$B$. \verb$fconv$ proves the opposite direction by weakening the function's context in \verb$f [ p ]$ and then applying the first variable from this context to it with \verb$$\verb=$=\verb$ q$. We explain \verb$q$, \verb$p$, \verb$_[_]$ and \verb$_$\verb=$=\verb$_$, alongside the whole substitution calculus, in Chapter \ref{sec:algebraic-def} in more detail.
+\noindent{It means that when we can explain a term of type \verb$B$ using a context that is some \verb$Γ$ plus a variable \verb$A$, we can also always explain a function in context \verb$Γ$ that goes from \verb$A$ to \verb$B$. \verb$fconv$ proves the opposite direction by weakening the function's context in \verb$f [ p ]$ and then applying the first variable from this context to it with \verb$$\verb=$=\verb$ q$. We explain \verb$q$, \verb$p$, \verb$_[_]$ and \verb$_$\verb=$=\verb$_$ alongside the whole substitution calculus in Chapter \ref{sec:algebraic-def} in more detail.
 
 \noindent{\textit{Corollary:} \verb$Tm (Γ ▹ A) B$ and \verb$Tm Γ (A ⇒ B)$ are isomorphic in our model.}}
 
-Note the difference between \verb$→$ and \verb$⇒$ in the above definition. The former denotes function types in our metatheoretic language, while the latter means functions in our object theory.
+Note the difference between \verb$→$ and \verb$⇒$ in the definition above. The former denotes function types in our metatheoretic language, while the latter means functions in our object theory.
 
-Bidirectional type checking consists of the usual \cite{dunfield2021bidirectional} two functions: \verb$infer$ and \verb$check$. Both take an ABT term as input. The former, if well-typed, returns its inferred type and the corresponding well-typed term. The latter takes the expected type as argument and checks whether the input term has said type; if yes, it returns the well-typed term.
+Bidirectional type checking consists of the usual \cite{dunfield2021bidirectional} two functions: \verb$infer$ and \verb$check$. Both take an ABT term as input. The former, if well-typed, returns its inferred type and the corresponding well-typed term. The latter takes the expected type as argument and checks whether the input term has that type; if yes, it returns the well-typed term.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -693,7 +693,7 @@ infer Γ (abt-isZero t) with infer Γ t
 \label{code:typecheck-infer-triv}
 \end{listing}
 
-It is a recurring pattern that type inference of terms usually requires type inference of their subterm(s), like with \verb$isZero$, where the subterm must be a \verb$Nat$.
+It is a recurring pattern that type inference of terms usually requires type inference of their subterm(s), like with \verb$isZero$ where the subterm must be a \verb$Nat$.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -713,9 +713,9 @@ infer Γ (u abt-+ v) with infer Γ u | infer Γ v
 
 For \verb$"if t then u else v"$ constructions, we first check whether \verb$t$ is of type \verb$Bool$ and that \verb$u$ and \verb$v$ have the same type by using pattern matching. If all criteria hold, we use \verb$Bool$'s iterator \verb$iteBool$ for building the well-typed term. It normalises to its first argument if the third does to \verb$true$, or to the second otherwise. The use of \verb$transp$ in this proof and in ones to follow is simply needed for technical reasons.
 \mint{agda}|transp : ∀{ℓ}{A : Set ℓ}{ℓ'}(P : A → Set ℓ'){a a' : A} → a ≡ a' → P a → P a'|
-With this, we can transport propositions over \textit{propositional equality} of \verb$Ty$, because Agda does this implicitly only with its own \textit{definitional equality}. More precisely, if we have a proof for \verb$a ≡ a'$ and that \verb$P a$ holds, \verb$transp$ gives us a proof of \verb$P a'$. So here we rely on the correctness of the trivial \verb$≟$ proposition of \verb$Ty$ equality from before.
+With this we can transport propositions over \textit{propositional equality} of \verb$Ty$, because Agda does this implicitly only with its own \textit{definitional equality}. More precisely, if we have a proof for \verb$a ≡ a'$ and that \verb$P a$ holds, \verb$transp$ gives us a proof of \verb$P a'$. So here we rely on the correctness of the trivial \verb$≟$ proposition of \verb$Ty$ equality from before.
 
-The addition operator is handled similarly, now using the iterator of naturals, \verb$iteNat$. Its first argument is the term that \verb$zeroo$ will be replaced with; the second is one that given a partial result of the iteration (in the context), produces the next result for each \verb$suco$; and the third is the \verb$Nat$ that we wish to iterate on.
+The addition operator is handled similarly, now using the iterator of naturals \verb$iteNat$. Its first argument is the term that \verb$zeroo$ will be replaced with; the second is one that given a partial result of the iteration (in the context), produces the next result for each \verb$suco$; and the third is the \verb$Nat$ that we wish to iterate on.
 \mint{agda}|iteNat : ∀{Γ A} → Tm Γ A → Tm (Γ ▹ A) A → Tm Γ Nat → Tm Γ A|
 In case of our addition, we replace the \verb$zeroo$ in the first number with the second number itself, then for each \verb$suco$ in the first number we insert a \verb$suco$ into the result.
 
@@ -735,9 +735,9 @@ infer Γ (abt-var n) = just (lookup Γ n)
 \label{code:typecheck-infer-lam}
 \end{listing}
 
-We reject inference of abstractions by returning \verb$nothing$, because we cannot determine types of bound variables in general. For example, the type of \verb$"λx.x"$ can be \verb$"ℕ → ℕ"$, \verb$"𝕃 → 𝕃"$, \verb$"[ℕ] → [ℕ]"$ or an infinite amount of other types. It is not only the identity function that is problematic. Any abstraction that does not use all its bound variable(s) has a similar issue, like \verb$"λx.10"$, which can be \verb$"ℕ → ℕ"$, \verb$"𝕃 → ℕ"$, \verb$"⊤ → ℕ"$, etc. As a result, lambdas need to be type annotated in our language, or they must be present in a context where we expect a specific type of function through the usage of our \verb$check$ function.
+We reject inference of abstractions by returning \verb$nothing$, because we cannot determine types of bound variables in general. For example, the type of \verb$"λx.x"$ can be \verb$"ℕ → ℕ"$, \verb$"𝕃 → 𝕃"$, \verb$"[ℕ] → [ℕ]"$ or an infinite amount of other types. It is not only the identity function that is problematic. Any abstraction that does not use all its bound variables has a similar issue, like \verb$"λx.10"$, which can be \verb$"ℕ → ℕ"$, \verb$"𝕃 → ℕ"$, \verb$"⊤ → ℕ"$, etc. As a result, lambdas need to be type annotated in our language, or they must be present in a context where we expect a specific type of function through the usage of our \verb$check$ function.
 
-When inferring an application, we first test whether the left-hand side is some function \verb$A ⇒ B$, then we check if the right-hand side is of type \verb$A$. If these hold, we can construct the term for application using \verb$$\verb=$=\verb$$.
+When inferring an application, we first test whether the left-hand side is a function \verb$A ⇒ B$, then we check if the right-hand side is of type \verb$A$. If these hold, we can construct the term for application using \verb$$\verb=$=\verb$$.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -761,10 +761,10 @@ check Γ A t with infer Γ t
 
 We present the mutually recursive nature of \verb$infer$ and \verb$check$ on our list type.
 
-For determining the type of \verb$u ∷ v$, we first infer the type of the head, \verb$u$, which will be some type \verb$A$. Then we check if the rest of the list, \verb$v$, is of type \verb$List A$. If \verb$v$ is still a non-empty list, then our third case from Code \ref{code:typecheck-infercheck-lists} will run, which simply calls inference on the remainder list. \verb$infer$ and \verb$check$ will call each other, until we reach our base case: the empty list. It is clear from the code attached above, that no matter what type \verb$A$ is in \verb$List A$, we can always construct the term \verb$nil$ for any such type. This is guaranteed by Agda's polymorphic nature as our meta language:
+To determine the type of \verb$u ∷ v$, we first infer the type of the head \verb$u$ which will be some type \verb$A$. Then we check if the rest of the list \verb$v$ is of type \verb$List A$. If \verb$v$ is still a non-empty list, then our third case from Code \ref{code:typecheck-infercheck-lists} will run, which simply calls inference on the remainder list. \verb$infer$ and \verb$check$ will call each other until we reach our base case: the empty list. It is clear from the code attached above that no matter what type \verb$A$ is in \verb$List A$, we can always construct the term \verb$nil$. This is guaranteed by Agda's polymorphic nature as our meta language:
 \mint{agda}|nil : ∀{Γ A} → Tm Γ (List A)|
 
-\verb$List$ is not the only type former, for which we need explicit \verb$check$ cases, Code \ref{code:typecheck-check-etc} shows a few more.
+\verb$List$ is not the only type former for which we need explicit \verb$check$ cases, Code \ref{code:typecheck-check-etc} shows a few more.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -790,9 +790,9 @@ check Γ (_ +o A) (abt-inr t) | nothing = nothing
 
 Some \verb$abt-λ t$ term will be a valid term of \verb$A ⇒ B$ in context \verb$Γ$, if and only if \verb$t$ is a valid term of type \verb$B$ in context \verb$(Γ ▹ A)$. The extended context here contains the variable bound by the lambda.
 
-Sum types are introduced by the left and right injection rules \verb$inl$ and \verb$inr$. With the \verb$(A +o _)$ and \verb$(_ +o A)$ patterns in the above snippet, we indicate that the type checking does not care about the other type in the sum in these cases, respectively.
+Sum types are introduced by the left and right injection rules \verb$inl$ and \verb$inr$. With the \verb$(A +o _)$ and \verb$(_ +o A)$ patterns in the snippet above, we indicate that the type checking does not consider the other types in the sum in these cases.
 
-For annotated terms, we first use \verb$infer-ty$ to determine the type from the syntactic annotation. Then, we test whether the subject term has that type using \verb$check$, which simply involves an equality test of \verb$Ty$, as seen on Code \ref{code:typecheck-check-ann}.
+For annotated terms, we first use \verb$infer-ty$ to determine the type from the syntactic annotation. Then we test whether the subject term has that type using \verb$check$, which simply involves an equality test of \verb$Ty$, as seen on Code \ref{code:typecheck-check-ann}.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -814,11 +814,11 @@ check Γ A (abt-ann t ty) | nothing = nothing
 
 \section{Algebraic definition quotiented by equations} \label{sec:algebraic-def}
 
-We do not include the whole formalisation of our models in this and the following chapter since that would entail depicting nearly a thousand lines of code. Instead, we highlight the most fundamental and significant parts of our code, and expect the reader to visit our codebase if they desire a deeper review.
+We do not include the whole formalisation of our models neither in this nor in the following chapter since that would entail depicting nearly a thousand lines of code. Instead, we highlight the most fundamental and significant parts of our code, and ask the reader to visit our codebase if they look for a deeper review.
 
 In Chapter \ref{sec:typecheck}, we already introduced the reader to some of the concepts in our object theory, such as \verb$Ty$, \verb$Con$ and \verb$Tm$. Now we will explain the full substitution calculus and some other quotients that formalise desired \verb$β$ and \verb$η$ equivalences between terms of our language. Structures like these are sometimes called \textit{quotient inductive-inductive types}, or QIITs \cite{altenkirch2018quotient}.
 
-Each \verb$λ$-abstraction binds a variable, introducing a new scope. We can mathematically express this using substitutions. Usual notations for rewriting \verb$(λx.M)N$ to substitution form include \verb$M[x := N]$ and \verb$M[x ↤ N]$. This means that we replace all occurrences of the variable \verb$x$ in \verb$M$ with \verb$N$. If we have a scope with multiple bound variables, e.g., \verb$(λx.(λy.(λz.M))) N₁ N₂ N₃$, we may write \verb$M[x := N₁, y := N₂, z := N₃]$. However on this level, we use De Bruijn indices, so we can omit the variable names: \verb$M[N₁, N₂, N₃]$. The notation we employ is \verb$t [u ,o v ,o w]$, since we use the letters \verb$t$, \verb$u$, \verb$v$, etc., for terms and \verb$,o$ for syntactic distinction between our object and meta languages.
+Each \verb$λ$-abstraction binds a variable introducing a new scope. We can mathematically express this using substitutions. Usual notations for rewriting \verb$(λx.M)N$ to substitution form include \verb$M[x := N]$ and \verb$M[x ↤ N]$. This means that we replace all occurrences of the variable \verb$x$ in \verb$M$ with \verb$N$. If we have a scope with multiple bound variables, e.g., \verb$(λx.(λy.(λz.M))) N₁ N₂ N₃$, we may write \verb$M[x := N₁, y := N₂, z := N₃]$. However, on this level we use De Bruijn indices, so we can omit the variable names: \verb$M[N₁, N₂, N₃]$. The notation we employ is \verb$t [u ,o v ,o w]$ since we use the letters \verb$t$, \verb$u$, \verb$v$, etc., for terms and \verb$,o$ for syntactic distinction between our object and meta languages.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -848,15 +848,15 @@ q    : ∀{Γ A} → Tm (Γ ▹ A) A
 \label{code:ot-subst-calc}
 \end{listing}
 
-Code \ref{code:ot-subst-calc} shows that substitution, \verb$Sub$, is between contexts, \verb$Con$s. The above explained notation appears in \verb$_[_]$. It means that if we have a term of type \verb$A$ in context \verb$Γ$ and a substitution from \verb$Δ$ to \verb$Γ$, then we can construct a term of type \verb$A$ in \verb$Δ$. This operator is often called \textit{instantiation}.
+Code \ref{code:ot-subst-calc} shows that substitution: \verb$Sub$ is between contexts: \verb$Con$s. The above explained notation appears in \verb$_[_]$. It means that if we have a term of type \verb$A$ in context \verb$Γ$ and a substitution from \verb$Δ$ to \verb$Γ$, then we can construct a term of type \verb$A$ in \verb$Δ$. This operator is often called \textit{instantiation}.
 
-Substitutions can be composed with the \verb$_⊚_$ operator, which is associative, shown by \verb$ass$. \verb$[∘]$ says that two consecutive substitutions are equivalent to the single substitution of their composition. We call the substitution that leaves the context untouched \verb$id$. It is both a left and right identity of composition witnessed by \verb$idl$ and \verb$idr$, respectively. \verb$[id]$ states that substitution with the identity does not change any term.
+Substitutions can be composed with the \verb$_⊚_$ operator which is associative, shown by \verb$ass$. \verb$[∘]$ says that two consecutive substitutions are equivalent to the single substitution of their composition. We call the substitution that leaves the context untouched \verb$id$. It is both a left and right identity of composition witnessed by \verb$idl$ and \verb$idr$, respectively. \verb$[id]$ states that substitution with the identity does not change any term.
 
 \verb$ε$ means that we can substitute any \verb$Γ$ to the empty context. The uniqueness rule \verb$◇η$ states that there is exactly one such substitution.
 
 We gave an informal introduction to \verb$p$ and \verb$q$ in the previous chapter. Their \textit{computation rules} or \textit{beta-rules} - i.e., descriptions of what happens when we apply a destructor to a constructor - formally states what we explained. \verb$p$ removes the last bound variable, returning a truncated context; and \verb$q$ extracts the last variable. Both work only on non-empty contexts as seen in the common pattern \verb$γ ,o t$.
 
-Finally, we need one more uniqueness rule, \verb$▹η$. It describes that, given an arbitrary context, if we remove then reinsert the last variable, the result will only be equivalent to the original context.
+Finally, we need one more uniqueness rule: \verb$▹η$. It describes that given an arbitrary context, if we remove then reinsert the last variable, the result will only be equivalent to the original context.
 
 Note that the above presented model is also often called a simply typed category with families, sCwF \cite{castellan2021categories}.
 
@@ -877,7 +877,7 @@ $[]   : ∀{Γ A B}{t : Tm Γ (A ⇒ B)}{u : Tm Γ A}{Δ}{γ : Sub Δ Γ} →
 
 \verb$⇒β$ is the rule of \verb$β$-reduction: applying some \verb$t$ on some \verb$u$ is equivalent to substituting all occurrences of \verb$t$'s bound variable (i.e., term for De Bruijn index zero) with \verb$u$.
 
-\verb$⇒η$ formalises the eta conversion of lambda calculus: \verb$λx.f x = f$, where \verb$x$ does not appear free in \verb$f$. Of course, we do not have to worry about the "does not appear free" part, since we do not use variable names on this level of abstraction.
+\verb$⇒η$ formalises the eta conversion of lambda calculus: \verb$λx.f x = f$, where \verb$x$ does not appear free in \verb$f$. Naturally, we do not have to take the "does not appear free" part into consideration, since variable names are not used on this level of abstraction.
 
 \verb$lam[]$ and \verb$$\verb=$=\verb$[]$\verb$$ describe how to substitute abstractions and applications.
 
@@ -913,7 +913,7 @@ iteNat[] : ∀{Γ A}{u : Tm Γ A}{v : Tm (Γ ▹ A) A}{t : Tm Γ Nat}{Δ}{γ : S
 \label{code:ot-nats}
 \end{listing}
 
-On Code \ref{code:ot-nats}, the computation rules \verb$Natβ₁$ and \verb$Natβ₂$ show the iteration semantics we introduced in Chapter \ref{sec:typecheck}: when we reach \verb$zeroo$, we normalise to the first argument; otherwise for each \verb$suco$, we insert an application of the second argument. In the latter case, we see the structurally reducing (and thus total) recursive call, i.e., on the left we see \verb$suco t$ and on the right it is \verb$t$. \verb$zero[]$, \verb$suc[]$ and \verb$iteNat[]$ are the substitution rules for these respective constructs. Equalities for boolean terms on Code \ref{code:ot-bools} are similar.
+On Code \ref{code:ot-nats}, the computation rules \verb$Natβ₁$ and \verb$Natβ₂$ show the iteration semantics we introduced in Chapter \ref{sec:typecheck}: when we reach \verb$zeroo$, we normalise to the first argument; otherwise for each \verb$suco$, we insert an application of the second argument. In the latter case we see the structurally reducing (and thus total) recursive call, i.e., on the left we see \verb$suco t$, and on the right it is \verb$t$. \verb$zero[]$, \verb$suc[]$ and \verb$iteNat[]$ are the substitution rules for these respective constructs. Equalities for boolean terms on Code \ref{code:ot-bools} are similar.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -931,7 +931,7 @@ iteBool[] : ∀{Γ A t u v Δ}{γ : Sub Δ Γ} →
 \label{code:ot-bools}
 \end{listing}
 
-The equalities we decorate our algebra with can be viewed as a set of \textit{inference rules}, that entails a form of \textit{structural operational semantics} \cite{plotkin1981structural}. In practice, this means that we can transform terms of the well-typed syntax along series of equalities using Agda's \textit{equational reasoning}. This logic stands as the first building block towards normalisation and semantical meaning of programs.
+The equalities we decorate our algebra with can be viewed as a set of \textit{inference rules} that entails a form of \textit{structural operational semantics} \cite{plotkin1981structural}. In practice, this means that we can transform terms of the well-typed syntax along series of equalities using Agda's \textit{equational reasoning}. This logic stands as the first building block towards normalisation and semantical meaning of programs.
 
 Code \ref{code:ot-eq-reasoning} presents an example where we prove that the well-typed term compiled from \verb$"if isZero 1 then 0 else 1+1"$ is equivalent to the one compiled from \verb$"2"$.
 
@@ -965,17 +965,17 @@ eq = iteBool z (iteNat (s z) (s q) (s z)) (iteNat true false (s z))
 
 In our proof, we use computation rules \verb$Natβ₁$, \verb$Natβ₂$, \verb$Boolβ₂$; as well as substitution rules \verb$false[]$, \verb$suc[]$ and \verb$▹β₂$.
 
-First, we rewrite \verb$isZero 1$ to \verb$false$. This leaves us with a non-empty substitution in \verb$false [ id ,o iteNat true false z ]$, but \verb$false$ is a constant function witnessed by \verb$false[]$, so we can drop the context. Now that we know that the condition is false, we can use \verb$Boolβ₂$ to discard the true branch. The only work left is to compute the \verb$1+1$ addition using the iteration rules \verb$Natβ₂$ and \verb$Natβ₁$. This also involves \verb$suc[]$, which is similar to \verb$false[]$, since natural numbers are constant terms. We employ \verb$▹β₂$ to access the recursive result of the iteration, because opposed to the previous one, this is a two-step iteration.
+Firstly, we rewrite \verb$isZero 1$ to \verb$false$. This leaves us with a non-empty substitution in \verb$false [ id ,o iteNat true false z ]$, but \verb$false$ is a constant function witnessed by \verb$false[]$, so we can drop the context. Now that we know that the condition is false, we can use \verb$Boolβ₂$ to discard the true branch. Finally, we have to compute the \verb$1+1$ addition using the iteration rules \verb$Natβ₂$ and \verb$Natβ₁$. This also involves \verb$suc[]$, which is similar to \verb$false[]$, since natural numbers are constant terms. We employ \verb$▹β₂$ to access the recursive result of the iteration, because opposed to the previous one, this is a two-step iteration.
 
-Note that the quotients do not specify any notion of order between these rewriting steps. For example, we could have started with evaluating the \verb$"1+1"$ part of the term, and only then compute the \verb$"isZero 1"$ condition. We would have still arrived to the same result, albeit with a different proof in terms of the order of steps. This is similar to the observations in lambda calculus: \verb$λ$-terms can have multiple \verb$β$-reduction strategies. The Church-Rosser theorem states that all reduction will eventually reduce to the same term. Of course, we are not yet talking about \textit{reduction} here, since we can apply equalities in arbitrary directions, even in a back and forth manner to write infinite proofs. So when writing proofs by hand on this level, like the one above, we have to be a little careful.
+Note that the quotients do not specify any notion of order between these rewriting steps. For example, we could have started with evaluating the \verb$"1+1"$ part of the term, and only then compute the \verb$"isZero 1"$ condition. This would have led to the same result, albeit with a different proof in terms of the order of steps. This is similar to the observations in lambda calculus: \verb$λ$-terms can have multiple \verb$β$-reduction strategies. The Church-Rosser theorem states that all reduction will eventually reduce to the same term. Of course, we are not yet talking about \textit{reduction} here, since we can apply equalities in arbitrary directions, even in a back and forth manner to write infinite proofs. So when writing proofs by hand on this level as above, we have to be more cautious.
 
-Another aspect of ordering is \textit{optimisation}. Lazy programming languages usually do not evaluate all sub-expressions of constructs like if-then-else, only the condition first, and then the relevant branch. Our proof would have been a lot longer too if instead of \verb$"0"$, we had a much larger term as the true branch and were inclined to compute it unnecessarily.
+Another aspect of ordering is \textit{optimisation}. Lazy programming languages usually do not evaluate all sub-expressions of constructs like if-then-else, only the condition first, and then the relevant branch. Our proof would have been a lot longer too if instead of \verb$"0"$, we had had a much larger term as the true branch and were inclined to compute it unnecessarily.
 
 \section{Standard interpretation and normalisation} \label{sec:normalisation}
 
-In the previous chapter, we introduced the \textit{syntax}, i.e., \textit{initial model}, of our language. It is initial, because there is a homomorphism from here to any model. What makes an algebraic structure \textit{model} of STLC is that all sorts are specified with types and all equations hold, i.e., we provide proofs for them.
+In the previous chapter we introduced the \textit{syntax}, i.e., \textit{initial model}, of our language. It is initial, because there is a homomorphism from here to any model \cite{typesystems-repo}. What makes an algebraic structure \textit{model} of STLC is that all sorts are specified with types and all equations hold, i.e., we provide proofs for them.
 
-In this chapter, we present a model we call \textit{standard model}. It provides the standard meta-language interpretation of our well-typed terms. In essence, we map our object theoretic concepts to our meta theory, i.e., Agda. We can call this a form of evaluation, because the resulting Agda terms can be normalised by Agda. For example, the standard model interpretation of \verb$iteBool zeroo (suco zeroo) false$ is \verb$if false then 0 else 1$, which Agda normalises to \verb$1$.
+In this chapter we present a model we call \textit{standard model}. It provides the standard meta-language interpretation of our well-typed terms. In essence, we map our object theoretic concepts to our meta theory, i.e., Agda. We can call this a form of evaluation, because the resulting Agda terms can be normalised by Agda. For example, the standard model interpretation of \verb$iteBool zeroo (suco zeroo) false$ is \verb$if false then 0 else 1$, which Agda normalises to \verb$1$.
 
 We denote \textit{rewriting}, often called \textit{interpretation}, by enclosing our syntactic terms - terms of the initial model, \verb$I$ - in \verb$⟦_⟧$. For technical reasons, we have separate operators for all sorts, e.g., \verb$⟦_⟧T$ for rewriting types, \verb$⟦_⟧C$ for contexts, etc. We use Agda's \verb$REWRITE$ pragma as seen on Code \ref{code:ot-rewriting}.
 
@@ -1035,15 +1035,15 @@ St = record
 \label{code:ot-st-model}
 \end{listing}
 
-Most of the standard model is self-evident: we map booleans to Agda's bools, naturals to Agda's Peano numbers, etc. We interpret functions, \verb$A ⇒ B$, using the meta theoretic function space, \verb$A → B$. Contexts are implemented using Agda's products, for example \verb$[t ,o u ,o v]$ is mapped to \verb$(t , u) , v$. The terms \verb$p$ and \verb$q$ then become \verb$π₁$ and \verb$π₂$, i.e., left and right projections, respectively. Equality proofs are all provided by \verb$refl$.
+Most of the standard model is self-evident: we map booleans to Agda's bools, naturals to Agda's Peano numbers, etc. We interpret functions: \verb$A ⇒ B$ using the meta theoretic function space: \verb$A → B$. Contexts are implemented using Agda's products, for example, \verb$[t ,o u ,o v]$ is mapped to \verb$(t , u) , v$. The terms \verb$p$ and \verb$q$ then become \verb$π₁$ and \verb$π₂$, i.e., left and right projections, respectively. Equality proofs are all provided by \verb$refl$.
 
 We define auxiliary types in Agda for our slightly more complex constructions, like the inductive \verb$List$ and \verb$Tree$, or the coinductive \verb$Stream$ and \verb$Machine$. We will discuss the semantics of these alongside their examples in Chapter \ref{sec:examples}.
 
-Our elaborator uses the standard model interpretation and Agda's built-in normalisation for evaluating the compiled programs. For insights about \textit{implementing normalisation}, we direct our reader to Ambrus Kaposi's work \cite{typesystems-repo}, which we based our elaborator on. It contains normalisation, albeit only up until a subset of our language as of writing this thesis, not including function space, for example.
+Our elaborator uses the standard model interpretation and Agda's built-in normalisation for evaluating the compiled programs. For insights about \textit{implementing normalisation}, we direct our reader to Ambrus Kaposi's work \cite{typesystems-repo} which we based our elaborator on. It contains normalisation, albeit only up until a subset of our language as of writing this thesis, not including function space, for example.
 
 \section{Running the elaborator} \label{sec:running}
 
-\verb$Program$ is a dependent pair: a type \verb$A$ and a term of type \verb$A$, that is valid in the empty context, \verb$◇$. \verb$Evaluation$ is the interpretation of a program in the standard model, which Agda can normalise for us. \verb$ProgEval$ is the combination of the two: a term of some type \verb$A$ along with its evaluation in the standard model.
+\verb$Program$ is a dependent pair: a type \verb$A$ and a term of type \verb$A$ that is valid in the empty context \verb$◇$. \verb$Evaluation$ is the interpretation of a program in the standard model which Agda can normalise for us. \verb$ProgEval$ is the combination of the two: a term of some type \verb$A$ along with its evaluation in the standard model.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -1055,7 +1055,7 @@ ProgEval   = Σ Ty λ A → (Tm ◇ A × St.Tm St.⟦ ◇ ⟧C St.⟦ A ⟧T)
 \label{code:elab-types}
 \end{listing}
 
-It may come as a surprise that we have not defined \verb$ProgEval$ as \verb$Program × Evaluation$. In fact, that was our very first thought for this type. However, we realised, that it means a weaker type, which would, in theory, allow results like \verb$(A , Tm) , (B , Eval)$, where \verb$A$ and \verb$B$ are separate types. Using our definition, we always get \verb$A , Tm , Eval$, where the type of \verb$Tm$ is \verb$A$ and the type of \verb$Eval$ is \verb$St.⟦ A ⟧T$, i.e., the type in the standard model that corresponds to \verb$A$.
+Some readers might question why we have not defined \verb$ProgEval$ as \verb$Program × Evaluation$. In fact, that was our very first thought for this type. However, we realised that it means a weaker type which would, in theory, allow results like \verb$(A , Tm) , (B , Eval)$ where \verb$A$ and \verb$B$ are separate types. Using our definition we always get \verb$A , Tm , Eval$ where the type of \verb$Tm$ is \verb$A$, and the type of \verb$Eval$ is \verb$St.⟦ A ⟧T$, i.e., the type in the standard model that corresponds to \verb$A$.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -1076,11 +1076,11 @@ elaborate code = case just (tokenize code)                     of λ where
 \label{code:elab-elaborate}
 \end{listing}
 
-\verb$elaborate$ employs all the conversions between our levels of abstractions, that we discussed in the previous chapters. It runs the steps until either one of them returns an error, i.e., \verb$nothing$, or until we reach the well-typed term level. In the latter case, we can always evaluate our resulting term using the standard model interpretation. This is guaranteed by the total definition of \verb$St.⟦_⟧t$, which always returns a \verb$Tm$ with some type \verb$A$, in some \verb$Γ$ context. A watchful reader will see that \verb$Γ$ will always be \verb$◇$ in our case.
+\verb$elaborate$ employs all the conversions between our levels of abstractions that we discussed in the previous chapters. It runs the steps until any one of them returns an error, i.e., \verb$nothing$, or until we reach the well-typed term level. In the latter case, we can always evaluate our resulting term using the standard model interpretation. This is guaranteed by the total definition of \verb$St.⟦_⟧t$, which always returns a \verb$Tm$ with some type \verb$A$, in some \verb$Γ$ context. A watchful reader will see that \verb$Γ$ will always be \verb$◇$ in our case.
 
 We chose to return all intermediate results of our process for the sake of transparency to the user, i.e., all levels of abstractions are automatically available for inspection. Also, even if the whole compilation fails, we still return partial results up until the point of the error for easy debugging.
 
-One questionable aspect of the above code is that \verb$tokenize code$ is wrapped in \verb$just$. It is because of the issue we mentioned in Chapter \ref{sec:lexer}: the lexer provided by agdarsec cannot fail. As a result, \verb$lexical-error$ below is only a placeholder as of writing this thesis.
+One questionable aspect in the code above is that \verb$tokenize code$ is wrapped in \verb$just$. It is because of the issue we mentioned in Chapter \ref{sec:lexer}: the lexer provided by agdarsec cannot fail. As a result, \verb$lexical-error$ below is only a placeholder as of writing this thesis.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -1156,7 +1156,7 @@ evalM code = case eval code of λ where
 \label{code:elab-user-functions}
 \end{listing}
 
-The set of functions presented on Code \ref{code:elab-user-functions} provides a convenient interface to the user for compiling source code and evaluating programs. \verb$compile-eval$ returns both the compilation and the evaluation results, or an error as a right injection for incorrect programs. \verb$compile$ and \verb$eval$ work the same way, except they return only the well-typed term, and its normalised Agda interpretation, respectively. Finally, \verb$compileM$ and \verb$evalM$ can be used, when the user would trade off the knowledge about the kind of potential errors for Maybe monadic results.
+The set of functions presented on Code \ref{code:elab-user-functions} provides a convenient interface to the user for compiling source code and evaluating programs. \verb$compile-eval$ returns both the compilation and the evaluation results, or an error as a right injection for incorrect programs. \verb$compile$ and \verb$eval$ work the same way, except they return only the well-typed term and its normalised Agda interpretation, respectively. Finally, \verb$compileM$ and \verb$evalM$ can be used, when the user would trade off the knowledge about the kind of potential errors for \verb$Maybe$ monadic results.
 
 \section{Examples} \label{sec:examples}
 
@@ -1219,9 +1219,9 @@ _ : eval (xor ++ₛ "true"  ++ₛ "true")  ≡ inj₁ (Bool , λ γ* → ff)
 \label{code:examples-xor}
 \end{listing}
 
-The \verb$xor$ example shows that we can write multi-line source code, and that we can, of course, nest operators like \verb$if_then_else_$. Note that the normalised Agda interpretation syntactically looks almost the same as the source code for our language.
+The \verb$xor$ example shows that we can write multi-line source code, and that we can nest operators like \verb$if_then_else_$. Note that the normalised Agda interpretation syntactically looks almost the same as the source code for our language.
 
-At this point, a curious reader might wonder why all evaluation results start with \verb$"λ γ* → "$. The \verb$γ*$ stands for the term's context, however it is never used in any resulting term. This means that the term following the arrow can be put into an arbitrary context. The reason is that we require from our compiled \verb$λ$-terms to be closed, as discussed at scope checking. As a result, the empty context suffices, and, of course, any larger one does as well.
+At this point, a curious reader might wonder why all evaluation results start with \verb$"λ γ* → "$. The \verb$γ*$ stands for the term's context, however it is never used in any resulting term. This means that the term following the arrow can be put into an arbitrary context. The reason is that we require our compiled \verb$λ$-terms to be closed as discussed at scope checking. As a result, the empty context suffices, and evidently any larger one does as well.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -1282,9 +1282,9 @@ _ : eval (curry ++ₛ (uncurry ++ₛ add)) ≡ eval add
 \label{code:examples-curry}
 \end{listing}
 
-On Code \ref{code:examples-curry} we show currying and uncurrying, i.e., proofs that \verb$n$-ary functions \verb$(n ∈ ℕ⁺)$ are isomorphic to unary higher-order ones that return \verb$(n-1)$-ary functions. This means that applying \verb$uncurry$ and \verb$curry$ on any curried function gets us the original function, as seen on the example with \verb$add$.
+On Code \ref{code:examples-curry}, we show currying and uncurrying, i.e., proofs that \verb$n$-ary functions \verb$(n ∈ ℕ⁺)$ are isomorphic to unary higher-order ones that return \verb$(n-1)$-ary functions. This means that applying \verb$uncurry$ then \verb$curry$ on any curried function gets us the original function, as seen on the example with \verb$add$.
 
-For lists, both type annotations and terms support two syntaxes. Types can be written as \verb$"List T"$ or \verb$"[T]"$ for any type \verb$T$; and terms like \verb$"2 ∷ 1 ∷ 0 ∷ nil"$ or \verb$"[2, 1, 0]"$, i.e., both Agda and Haskell-like forms are valid. We can, of course, create nested lists. A list of type \verb$"List (List ℕ)"$ can be \verb$"(0 ∷ 2 ∷ nil) ∷ (1 ∷ nil) ∷ nil"$, for example. A limitation from our parser is that nested lists are not supported by our Haskell-like syntax as of writing this thesis.
+For lists, both type annotations and terms support two syntaxes. Types can be written as \verb$"List T"$ or \verb$"[T]"$ for any type \verb$T$; and terms like \verb$"2 ∷ 1 ∷ 0 ∷ nil"$ or \verb$"[2, 1, 0]"$, i.e., both Agda and Haskell-like forms are valid. We can create nested lists. A list of type \verb$"List (List ℕ)"$ can be \verb$"(0 ∷ 2 ∷ nil) ∷ (1 ∷ nil) ∷ nil"$, for example. A limitation from our parser is that nested lists are not supported by our Haskell-like syntax as of writing this thesis.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -1315,13 +1315,13 @@ replicate = "(λ n x. iteℕ (nil : [ℕ]) (λ xs. x ∷ xs) n) : ℕ → ℕ �
 
 Since we do not support type polymorphism, we decided to implement all generic list functions for \verb$[ℕ]$.
 
-The iterator of lists, \verb$iteList$, can fold the list to an arbitrary result type, e.g. \verb$𝕃$, \verb$ℕ$ or \verb$[ℕ]$, as seen on the above examples. Its first argument tells what to return for the empty list. The second turns a partial result and the next list element of the iteration to a new result. Finally, the third argument is the list itself we wish to fold.
+The iterator of lists: \verb$iteList$ can fold the list to an arbitrary result type, e.g. \verb$𝕃$, \verb$ℕ$ or \verb$[ℕ]$, as seen on the examples above. Its first argument tells what to return for the empty list. The second turns a partial result and the next list element of the iteration to a new result. Finally, the third argument is the list itself we wish to fold.
 
 Note that, unlike most of the time with function types, here we do not have to annotate the type of the second argument. This is because we already annotate the outer functions, so result types are propagated during type inference to the \verb$iteList$ terms, for which we only need to \textit{check} whether the types of all arguments match.
 
-\verb$headM$ also serves as an example of our sum types. It is a total implementation of the \textit{head} operation, i.e., the function that returns the first element of lists. Here we simulate \textit{Maybe} with the \verb$⊤ ⊎ ℕ$ sum. \verb$nil$ case in the iteration builds a left injection: \verb$inl trivial$; and the non-empty list case immediately packs the head element to a right injection: \verb$inr a$, discarding the recursive result, \verb$as$, of the remainder list.
+\verb$headM$ also serves as an example of our sum types. It is a total implementation of the \textit{head} operation, i.e., the function that returns the first element of lists. Here we simulate \verb$Maybe$ with the \verb$⊤ ⊎ ℕ$ sum. \verb$nil$ case in the iteration builds a left injection: \verb$inl trivial$; and the non-empty list case immediately packs the head element to a right injection: \verb$inr a$, discarding the recursive result \verb$as$ of the remainder list.
 
-The reader can find the compilation results of all our above list operations in our codebase, on Code \ref{code:examples-lists-eval} we only present some evaluation results.
+The reader can find the compilation results in our codebase of all list operations above. On Code \ref{code:examples-lists-eval} we only present some evaluation results.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -1392,7 +1392,7 @@ _ : eval (map ++ₛ even ++ₛ "(<0> | <7>) | (<1> | <10>)") ≡
 \label{code:examples-tree-eval}
 \end{listing}
 
-Coinductive types are the mathematical dual of inductive types. They are specified by their destructors, also often called \textit{observers}, which most of the time, either return a simpler type, or a new copy of the original object with a different inner state. Our STLC implementation features two coinductive type formers: \verb$Stream$ and \verb$Machine$.
+Coinductive types are the mathematical dual of inductive types. They are specified by their destructors, often called \textit{observers}, which most of the time either return a simpler type, or a new copy of the original object with a different inner state. Our STLC implementation features two coinductive type formers: \verb$Stream$ and \verb$Machine$.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -1410,7 +1410,7 @@ _ : eval ("head tail tail" ++ odds)  ≡ inj₁ (Nat , λ γ* → 5)
 \label{code:examples-streams-1}
 \end{listing}
 
-\verb$genStream$ introduces stream types from three arguments. A \textit{seed}, or \textit{initial state}, which is the third argument. A function, which specifies how the \verb$head$ eliminator must turn a stream state to a result. Finally, a specification for the \verb$tail$ operation that "advances the stream", i.e., produces a new state from the previous. In the case of \verb$even$ and \verb$odd$, the seeds and the operations are all trivial as seen on Code \ref{code:examples-streams-1}.
+\verb$genStream$ introduces stream types from three arguments. A \textit{seed} or \textit{initial state} which is the third argument. A function which specifies how the \verb$head$ eliminator must turn a stream state to a result. Finally, a specification for the \verb$tail$ operation that "advances the stream", i.e., produces a new state from the previous. In the case of \verb$even$ and \verb$odd$, the seeds and the operations are all trivial as seen on Code \ref{code:examples-streams-1}.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -1459,7 +1459,7 @@ Our \verb$Machine$ type works like simple state machines with the following sema
 	\item{\verb$put$: taking the current state and a number, it advances the state - \textit{input}}
 	\item{\verb$set$: advances the state - \textit{signal}}
 	\item{\verb$get$: produces a natural number from the current state and returns it - \textit{output}}
-	\item{\verb$seed$: initial state, which has an arbitrary type, like with \verb$Stream$}
+	\item{\verb$seed$: initial state which has an arbitrary type, like with \verb$Stream$}
 \end{itemize}
 
 \begin{listing}[H]
@@ -1477,7 +1477,7 @@ _ : eval ("get put put set put " ++ sum-machine ++ " 10 20 30")
 \label{code:examples-machines-1}
 \end{listing}
 
-Code \ref{code:examples-machines-1} presents a simple example. \verb$sum-machine$, starting from zero, adds together all numbers input with \verb$put$. \verb$get$ can be used to extract the result, and \verb$set$ to reset the sum to zero.
+Code \ref{code:examples-machines-1} presents a simple example. \verb$sum-machine$, starting from zero, adds together all numbers input with \verb$put$. \verb$get$ can be used to extract the result and \verb$set$ to reset the sum to zero.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -1499,7 +1499,7 @@ _ : eval ("get put put put put set" ++ partitioned-sums ++ "3 10 1 8") ≡
 \label{code:examples-machines-2}
 \end{listing}
 
-\verb$partitioned-sums$ works like \verb$sum-machine$, except it adds together the even and odd numbers separately. Also, now the purpose of \verb$set$ is to toggle a boolean flag, that determines which sum \verb$get$ will return. To implement this, we used products to store a triple as internal state: \textit{(flag, odd-sum, even-sum)}. In \verb$put$, we add to the 2nd or 3rd component of the state depending on the \verb$even$ check's result. \verb$set$ toggles the first component and does not touch the other two. \verb$get$ returns the 2nd or 3rd depending on the flag component's state.
+\verb$partitioned-sums$ works like \verb$sum-machine$, except it adds together the even and odd numbers separately. Also, now the purpose of \verb$set$ is to toggle a boolean flag that determines which sum \verb$get$ will return. To implement this we used products to store a triple as internal state: \textit{(flag, odd-sum, even-sum)}. In \verb$put$ we add to the 2nd or 3rd component of the state depending on the \verb$even$ check's result. \verb$set$ toggles the first component and does not touch the other two. \verb$get$ returns the 2nd or 3rd depending on the flag component's state.
 
 At this point, the reader can see that constructing inner states of arbitrary complexity is possible. Also, we could support "machine types" which have more than one input methods (like \verb$put$), output methods (like \verb$get$) and signals (like \verb$set$); essentially simulating constructions like Turing machines, REPLs or even operating systems.
 

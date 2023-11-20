@@ -6,7 +6,7 @@ Programming languages are the backbone of software development. Defining them wi
 
 This thesis aims to walk the reader through each step of such an elaboration. Our method is an extension to an existing formalisation of a simple language. We go from source code by lexical analysis to a list of tokens, then by parsing to an abstract syntax tree, which is followed by scope checking leading to an abstract binding tree. Finally, we present a bidirectional type checking algorithm which turns the binding tree to a well-typed term of our language. We apply a correct by construction approach by 1.) formalising all levels and the algorithms between them in type theory using Agda, 2.) constructing terms with an algebraic description, which cannot be badly typed by definition.
 
-Our language is based on simply typed lambda calculus with the function space having finite types: booleans, nullary and binary products and sums; inductive types: naturals, lists, trees (and their iterators); coinductive types: streams and simple state machines; and a few additional operators.
+Our language is based on simply typed lambda calculus with the function space having finite types: booleans, nullary/binary products and sums; inductive types: naturals, lists, trees (and their iterators); coinductive types: streams and simple state machines; a few additional operators.
 
 We discuss both the benefits and difficulties of the presented solution and compare it to other approaches. The study is concluded by ideas on how our framework can be extended or improved.
 
@@ -27,7 +27,7 @@ This project requires [Agda version 2.6.2.2](https://wiki.portal.chalmers.se/agd
 * [agda-stdlib-1.7.1](https://github.com/agda/agda-stdlib/releases)
 * [agdarsec-0.5.0](https://github.com/gallais/agdarsec/releases)
 
-1. Make sure to download the correct versions, i.e., `1.7.1` and `0.5.0`, respectively!
+1. Make sure to download the correct versions, i.e., `1.7.1` and `0.5.0`, respectively
 
 2. Follow the steps of the [stdlib install guide](https://github.com/agda/agda-stdlib/blob/master/notes/installation-guide.md)
 
