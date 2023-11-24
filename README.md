@@ -8,7 +8,7 @@ This thesis aims to walk the reader through each step of such an elaboration. Ou
 
 Our language is based on simply typed lambda calculus with the function space having finite types: booleans, nullary/binary products and sums; inductive types: naturals, lists, trees (and their iterators); coinductive types: streams and simple state machines; a few additional operators.
 
-We discuss both the benefits and difficulties of the presented solution and compare it to other approaches. The study is concluded by ideas on how our framework can be extended or improved.
+We discuss both the benefits and difficulties of the presented solution. The study is concluded by ideas on how our framework can be extended or improved.
 
 **Keywords:** lambda-calculus, Agda, formalisation, elaboration, parsing, typechecking
 
