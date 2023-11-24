@@ -14,7 +14,7 @@ From our seven representations: string and list of tokens are trivial; AST and A
 
 From the six transitions between our levels of abstractions: lexical analysis and parsing are solved in a high-level approach using the agdarsec library; scope checking, type inference and standard model interpretation bear more in-depth explanations; and Agda normalisation, as mentioned earlier, is not part of our domain.
 
-We give prefixes to our constructors on all levels for clarity, e.g., \verb$t-true$ for the token, \verb$s-true$ for the AST (syntactic) term, \verb$p-true$ for its parser, and \verb$abt-true$ for the ABT term. Well-typed terms have no prefixes, e.g., \verb$true$. We also often use the "o" suffix for distinguishing between Agda terms and our own, e.g. in \verb$zeroo$ and \verb$suco$.
+We give prefixes to our constructors on all levels for clarity, e.g., \verb$t-true$ for the token, \verb$s-true$ for the AST (syntactic) term, \verb$p-true$ for its parser, and \verb$abt-true$ for the ABT term. Well-typed terms have no prefixes, e.g., \verb$true$. We also often use the "o" suffix for distinguishing between Agda terms and our own, e.g., in \verb$zeroo$ and \verb$suco$.
 
 \begin{figure}[h!]
 	\centering
@@ -449,7 +449,7 @@ Another notable difference is in \verb$abt-λ$. It no longer stores the list of 
 
 Naturally, our \verb$abt-var$ node is also indexed by natural numbers instead of strings. To be more rigorous, we chose to use \verb$Fin n$ (set of n elements, i.e., subset of naturals from 0 to n-1) in our definition \verb$abt-var : Fin n → ABT n$, as can be seen on Code \ref{code:abt-def}. This ensures that we cannot create an ABT which has a variable reference that is out of bounds, i.e., one that uses an index not present in its context.
 
-Our scope checking formalisation rely on a few lemmas depicted on Codes \ref{code:abt-lift-abt} and \ref{code:abt-arit-lemmas}. Here we omit the proofs for the arithmetic ones, but they can be found in our codebase.
+Our scope checking formalisation relies on a few lemmas depicted on Codes \ref{code:abt-lift-abt} and \ref{code:abt-arit-lemmas}. Here we omit the proofs for the arithmetic ones, but they can be found in our codebase.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -735,7 +735,7 @@ infer Γ (abt-var n) = just (lookup Γ n)
 \label{code:typecheck-infer-lam}
 \end{listing}
 
-We reject inference of abstractions by returning \verb$nothing$, because we cannot determine types of bound variables in general. For example, the type of \verb$"λx.x"$ can be \verb$"ℕ → ℕ"$, \verb$"𝕃 → 𝕃"$, \verb$"[ℕ] → [ℕ]"$ or an infinite amount of other types. It is not only the identity function that is problematic. Any abstraction that does not use all its bound variables has a similar issue, like \verb$"λx.10"$, which can be \verb$"ℕ → ℕ"$, \verb$"𝕃 → ℕ"$, \verb$"⊤ → ℕ"$, etc. As a result, lambdas need to be type annotated in our language, or they must be present in a context where we expect a specific type of function through the usage of our \verb$check$ function.
+We reject inference of abstractions by returning \verb$nothing$, because we cannot determine types of bound variables in general. For example, the type of \verb$"λx.x"$ can be \verb$"ℕ → ℕ"$, \verb$"𝕃 → 𝕃"$, \verb$"[ℕ] → [ℕ]"$ or an infinite amount of other types. It is not only the identity function that is problematic. Any abstraction that does not use all its bound variables has a similar issue, like \verb$"λx.10"$ which can be \verb$"ℕ → ℕ"$, \verb$"𝕃 → ℕ"$, \verb$"⊤ → ℕ"$, etc. As a result, lambdas need to be type annotated in our language, or they must be present in a context where we expect a specific type of function through the usage of our \verb$check$ function.
 
 When inferring an application, we first test whether the left-hand side is a function \verb$A ⇒ B$, then we check if the right-hand side is of type \verb$A$. If these hold, we can construct the term for application using \verb$$\verb=$=\verb$$.
 
@@ -1190,7 +1190,7 @@ _ : eval (odd  ++ₛ "3") ≡ inj₁ (Bool , λ γ* → tt)
 \label{code:examples-evenodd}
 \end{listing}
 
-First we define boolean negation \verb$not$ in a standard way using the \verb$Bool$ elimination rule. For \verb$even$, we use the iterator of \verb$ℕ$ to replace \verb$zero$ with \verb$true$ and each \verb$suc$ with a negation, essentially rewriting the structure, e.g. \verb$suc(suc(suc(zero))) ⟶  ¬(¬(¬(true)))$. We simply add one more negation on top in \verb$odd$.
+First we define boolean negation \verb$not$ in a standard way using the \verb$Bool$ elimination rule. For \verb$even$, we use the iterator of \verb$ℕ$ to replace \verb$zero$ with \verb$true$ and each \verb$suc$ with a negation, essentially rewriting the structure, e.g., \verb$suc(suc(suc(zero))) ⟶  ¬(¬(¬(true)))$. We simply add one more negation on top in \verb$odd$.
 
 \begin{listing}[H]
 \begin{minted}{agda}
@@ -1315,7 +1315,7 @@ replicate = "(λ n x. iteℕ (nil : [ℕ]) (λ xs. x ∷ xs) n) : ℕ → ℕ �
 
 Since we do not support type polymorphism, we decided to implement all generic list functions for \verb$[ℕ]$.
 
-The iterator of lists: \verb$iteList$ can fold the list to an arbitrary result type, e.g. \verb$𝕃$, \verb$ℕ$ or \verb$[ℕ]$, as seen on the examples above. Its first argument tells what to return for the empty list. The second turns a partial result and the next list element of the iteration to a new result. Finally, the third argument is the list itself we wish to fold.
+The iterator of lists: \verb$iteList$ can fold the list to an arbitrary result type, e.g., \verb$𝕃$, \verb$ℕ$ or \verb$[ℕ]$, as seen on the examples above. Its first argument tells what to return for the empty list. The second turns a partial result and the next list element of the iteration to a new result. Finally, the third argument is the list itself we wish to fold.
 
 Note that, unlike most of the time with function types, here we do not have to annotate the type of the second argument. This is because we already annotate the outer functions, so result types are propagated during type inference to the \verb$iteList$ terms, for which we only need to \textit{check} whether the types of all arguments match.
 
@@ -1410,7 +1410,7 @@ _ : eval ("head tail tail" ++ odds)  ≡ inj₁ (Nat , λ γ* → 5)
 \label{code:examples-streams-1}
 \end{listing}
 
-\verb$genStream$ introduces stream types from three arguments. A \textit{seed} or \textit{initial state} which is the third argument. A function which specifies how the \verb$head$ eliminator must turn a stream state to a result. Finally, a specification for the \verb$tail$ operation that "advances the stream", i.e., produces a new state from the previous. In the case of \verb$even$ and \verb$odd$, the seeds and the operations are all trivial as seen on Code \ref{code:examples-streams-1}.
+\verb$genStream$ introduces stream types from three arguments. A \textit{seed} or \textit{initial state} which is the third argument. A function which specifies how the \verb$head$ eliminator must turn a stream state to a result. Finally, a specification for the \verb$tail$ operation that "advances the stream", i.e., produces a new state from the previous. In the case of \verb$evens$ and \verb$odds$, the seeds and the operations are all trivial as seen on Code \ref{code:examples-streams-1}.
 
 \begin{listing}[H]
 \begin{minted}{agda}
