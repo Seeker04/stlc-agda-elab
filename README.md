@@ -22,7 +22,18 @@ You can read my MSc thesis in [STLC-elaboration-in-Agda.pdf](thesis/STLC-elabora
 
 ## Installation
 
-This project requires [Agda version 2.6.2.2](https://wiki.portal.chalmers.se/agda/Main/Download) and the following libraries:
+This project requires [Agda version 2.6.2.2](https://wiki.portal.chalmers.se/agda/Main/Download).
+
+Here is a method to install:
+```bash
+# from https://www.haskell.org/ghcup/
+curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh
+cabal update
+cabal install alex happy
+cabal install Agda-2.6.2.2
+```
+
+The following libraries are also required:
 
 * [agda-stdlib-1.7.1](https://github.com/agda/agda-stdlib/releases)
 * [agdarsec-0.5.0](https://github.com/gallais/agdarsec/releases)
