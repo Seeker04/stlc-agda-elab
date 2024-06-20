@@ -1,0 +1,240 @@
+[Definitions]
+
+ABT - Abstract binding tree
+AST - Abstract syntax tree (or parse tree)
+Aborting programs
+Abstraction
+Agda
+Algebraic theories
+Alpha equivalence
+Application
+Applicative monad
+Attribute dependency graph
+Attribute grammars (AG, "labeling" or "decoration")
+Axiomatic semantics (abstract with pre- & post-conditions)
+BNF grammar (Brackus-Naur form)
+Basic logical connectives (conjunction, disjunction, negation, implication, equivalence)
+Beta reduction
+Beta-equality
+Bidirectional type checking
+Binders, scopes
+Boolean algebra (true, false, truth tables)
+Brouwer-Heyting-Kolmogorov interpretation
+Cantor's diagonalisation
+Capture-avoidance
+Category (cartesian closed categories ~ lambda calculus)
+Category theory
+Chain complete partially ordered sets (ccpo)
+Church-Turing thesis
+Classical logic
+Coinduction
+Coinductive types (productive functions)
+Combinator calculus
+Combinatory logic
+Commutative exponential semiring
+Compiler/interpreter
+Complete partial ordering (cpo)
+Completeness of normalisation
+Completeness of semantics definitions
+Computation rules (beta)
+Concrete/abstract syntax
+Configurations, transition relation, linear deduction
+Constructive logic
+Constructor/introduction rule
+Context-free grammars
+Context-sensitive grammars
+Contexts
+Converging/diverging programs
+Copattern matching
+Coq
+Corecursion, corecursor (generator, anamorphism)
+Curry-Howard isomorphism
+Currying
+De Bruijn indices
+Decidability
+Decidability of equality of terms
+Definitional equality
+Definitional interpreter/semantic function (total, composible)
+Denotational semantics (compositional total function to mathematical objects)
+Denotational semantics with continuations
+Dependent function
+Dependent model of a language
+Dependent product
+Dependent type
+Derivable & admissible terms/properties
+Derivation rule
+Derivation/deduction chain (finite or infinite list of configurations)
+Destructor/elimination rule (iterator with motive & methods)
+Determinism of semantics definitions
+Domain theory
+Elaboration
+Empty function on semantic domains
+Equational consistency
+Equivalence classes
+Equivalence of semantics definitions
+Eta reduction
+Extensional type theory
+First order quantifiers (universal & existential)
+Fixed point theory
+Fixpoint
+Fixpoint combinator
+Fixpoint theorem of Kleene and Tarski (smallest fixpoint)
+Formal grammars
+Formal semantics
+Free & bound variables
+Free monoid
+Functor
+Guarded recursion
+Hereditary substitution
+Heyting algebra
+Higher order abstract syntax (HOAS)
+Higher order functions (functionals)
+Higher order inductive-inductive types (HIIT)
+Hoare logic, Hoare triples
+Homomorphism
+Homotopy Type Theory
+Imperative expressions & statements
+Induction
+Induction on length of deduction chains
+Inductive types
+Inference rules (syntax-driven deduction, premiss/conclusion/conditions, axioms)
+Inherited attributes (downwards)
+Initial algebra (syntax)
+Injectivity
+Intentional type theory
+Intrinsic typing
+Intuitionistic logic
+Isomorphism
+Iteration
+Iterator (fold, catamorphism, universal morphism)
+Kripke semantics
+L-Attribute grammars (both attributes, "top down")
+Lambda calculus - Simply typed
+Lambda calculus - Untyped
+Law of the excluded middle (tertium non datur)
+Levels of abstraction
+Lexical analysis (tokens)
+Lifting & weakening contexts
+Logical tautology
+Metacircular interpreter (normaliser, evaluator)
+Mirror/dual (in category theory)
+Model of a language
+Monad
+Monoid
+Monotony & continuity of fixpoint functions
+Mutual inductive types
+Name resolution
+Natural operational semantics (big-step)
+Negative/positive propositions
+Neutral terms & normal forms
+Normalisation
+Open & closed terms (programs)
+Operational semantics (inductively defined transitions)
+Parser combinator
+Parser-generator ("compiler compilers", e.g. yacc, yecc, bisonc++)
+Parsing (syntax analysis)
+Partial functions
+Pattern matching
+Peano Arithmetic
+Positivity
+Predicate
+Predicate logic (first order logic)
+Primitive recursive function (first order primitive recursion)
+Principle of indirect proof (reductio ad absurdo)
+Product types (Cartesian products, records)
+Proposition (Set)
+Propositional equality
+Propositional logic
+Quotient inductive-inductive types (QIIT)
+Recursion
+Recursor (primitive recursor, paramorphism)
+Reflexive transitive closure (multi-step rewriting)
+Reification
+S-Attribute grammars (only synthesised attributes, "bottom up")
+SK combinators
+Scope checking
+Scott-continuous functions
+Scrutinees (main arguments to destructors)
+Second-order algebraic theory
+Second-order operation
+Semantic domains
+Semantic equivalence
+Semantic function/behavioural relation
+Semantics (meaning)
+Semantics of concurrency (e.g. parallel assignment)
+Semantics of exception handling (try-catch, throw, exception context)
+Semantics of imperative constructions (skip, assignment, condition, loop, abort)
+Semantics of non-determinism (e.g. or statement)
+Set theory
+Signature functor
+Smallest fixpoint
+Stability of normalisation
+Standard model
+State function
+Static/dynamic semantics
+Strictly positive type
+Structural induction, structurally inductive proof
+Structural operational semantics (small-step)
+Stuck configuration
+Substitution calculus
+Substitution rules
+Sum types (disjunct unions, coproducts)
+Surjective pairing
+Symmetric closure (conversion relation)
+Syntax (correct sentences)
+Synthesised attributes (upwards)
+System T
+Terminating configuration
+Totality
+Transition relations
+Trivial model
+Type checking
+Type former
+Type inference
+Type judgements
+Type polymorphism
+Type theory
+Typing relation
+Uncurrying
+Uniqueness rules (eta)
+Universal computation
+Universal programming language
+Well-defined attribute grammar (WAG)
+Well-definedness
+Well-typed term
+Well-typed term with quotients
+Zermelo–Fraenkel set theory (ZFC)
+de Morgan laws
+
+[People]
+
+Abraham Fraenkel - ZFC set theory
+Alan Turing - Turing machines, definition of computation
+Alfred Tarski - Undefinability theorem
+Alfred Whitehead - Principia Mathematica
+Alonzo Church - Lambda calculus, definition of computation
+Andrey Kolmogorov - contributed to intuitionistic logic
+Arend Heyting - Constructive semantics for intuitionistic logic
+Bertrand Russell - Principia Mathematica
+David Hilbert - Foundation of mathematics, proof theory
+Ernst Zermelo - ZFC set theory
+Georg Cantor - Cardinals, ordinals, infinite and well-ordered sets
+George Boole - Boolean algebra
+Gerhard Gentzen - Natural deduction, sequence calculus
+Gottlob Frege - Predicate logic
+Guiseppe Peano - Peano Arithmetic
+Haskell Curry - Reinvented combinatory logic, Curry-Howard isomorphism
+John McCarthy - LISP
+Kurt Gödel - Completeness and incompleteness theorems, System T
+L. E. J. Brouwer - Intuitionistic logic
+Moses Schönfinkel - Combinatory logic, SKI combinator calculus
+Nicolaas de Bruijn - De Bruijn indices
+Per Martin Löf - Intuitionistic type theory
+Robin Milner - ML (Metalanguage), like LISP with types
+Samuel Eilenberg - Category theory
+Saunders Mac Lane - Category theory
+Stephen Kleene - Recursion theory, regular expressions
+Tony Hoare - Hoare logic
+Wilhelm Ackermann - Ackermann function
+William Howard - Curry-Howard isomorphism
+
